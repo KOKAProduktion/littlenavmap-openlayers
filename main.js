@@ -4,16 +4,9 @@ import Map from 'ol/Map';
 import OSM from 'ol/source/OSM';
 import TileLayer from 'ol/layer/Tile';
 import { DragPan, MouseWheelZoom, defaults } from 'ol/interaction';
-import { platformModifierKeyOnly } from 'ol/events/condition';
 import View from 'ol/View';
 
-const pan = ({ state, originX, originY }) => {
-  state.transformation.translateX += originX;
-  state.transformation.translateY += originY;
-  state.element.style.transform =
-    getMatrix({ scale: state.transformation.scale, translateX: state.transformation.translateX, translateY: state.transformation.translateY });
-};
-
+// init ol map
 var map = new Map({
   interactions: defaults({ dragPan: false, mouseWheelZoom: false }).extend([
     new DragPan({ condition: () => true }),
@@ -29,13 +22,17 @@ var map = new Map({
   }),
 });
 
-// required pointer overlay as ol canvas doesn't seem to fire drag events
+
+
+/**
+ * Required custom pointer overlay as ol canvas appears not to fire drag events
+ * inside a MSFS2020 iframe.
+ */
 const InitPointerOverlay = () => {
 
   var view = map.getView();
   var zoom = 1;
   var previous_position = null;
-  var adjust = false;
 
   // flag mouse down
   var mouseDown = 0;
