@@ -12,11 +12,11 @@ const InitPointerOverlay = (map) => {
     var mouseDown = false;
     document.body.onmousedown = function () {
         mouseDown = true;
-    }
+    };
     document.body.onmouseup = function () {
         previous_position = null; // clear obsolete last position (end of drag)
         mouseDown = false;
-    }
+    };
 
     // mouse event overlay
     var pointer_overlay = document.getElementById("pointer_overlay");
@@ -51,6 +51,6 @@ const InitPointerOverlay = (map) => {
         view.setZoom(zoom);
     });
 
-}
+};
 
 export default InitPointerOverlay;
