@@ -35,13 +35,13 @@ const InitPointerOverlay = () => {
   var previous_position = null;
 
   // flag mouse down
-  var mouseDown = 0;
+  var mouseDown = false;
   document.body.onmousedown = function () {
-    ++mouseDown;
+    mouseDown = true;
   }
   document.body.onmouseup = function () {
     previous_position = null; // clear obsolete last position (end of drag)
-    --mouseDown;
+    mouseDown = false;
   }
 
   // mouse event overlay
