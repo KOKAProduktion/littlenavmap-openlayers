@@ -4,8 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Accessible Map</title>
-    <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
-    <script src="https://unpkg.com/elm-pep"></script>
     <style>
         html,
         body {
@@ -47,7 +45,9 @@
 </head>
 
 <body>
-    <div id="map" class="map" tabindex="0"></div>
+    <div id="map" class="map"></div>
+    <div id="pointer_overlay"></div>
+    <div id="debug">HHUH</div>
 </body>
 
 </html>
