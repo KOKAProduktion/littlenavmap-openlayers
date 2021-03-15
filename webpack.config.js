@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
  module.exports = {
    entry: {
-     index: './main.js',
+     index: './src/index.js',
    },
 
   plugins: [
@@ -12,7 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
     new HtmlWebpackPlugin({
 
       title: 'Output Management',
-      template: 'index.html'
+      template: './src/index.html'
 
     }),
 
