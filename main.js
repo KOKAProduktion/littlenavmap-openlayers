@@ -34,16 +34,16 @@ const InitPointerOverlay = () => {
 
   var view = map.getView();
   var zoom = 1;
-  var previous_position = [0, 0];
+  var previous_position = null;
   var adjust = false;
 
-  // flag mouse button
+  // flag mouse down
   var mouseDown = 0;
   document.body.onmousedown = function () {
-    adjust = false; // skip first adjustment (position difference between 2 drags)
     ++mouseDown;
   }
   document.body.onmouseup = function () {
+    previous_position = null; // clear obsolete last position (end of drag)
     --mouseDown;
   }
 
@@ -55,16 +55,16 @@ const InitPointerOverlay = () => {
     if (mouseDown) {
       if (previous_position) {
 
+        // get offset in pixels
         var offset = [previous_position[0] - e.clientX, previous_position[1] - e.clientY];
+        // get current coords from pixels
+        var coords = map.getCoordinateFromPixel([e.clientX, e.clientY]);
+        // get offset coords from pixels
+        var offset_coords = map.getCoordinateFromPixel([e.clientX - offset[0], e.clientY - offset[1]]);
 
-        if (adjust) {
-          var coords = map.getCoordinateFromPixel([e.clientX, e.clientY]);
-          var offset_coords = map.getCoordinateFromPixel([e.clientX - offset[0], e.clientY - offset[1]]);
-          view.adjustCenter([coords[0] - offset_coords[0], coords[1] - offset_coords[1]]);
+        // apply
+        view.adjustCenter([coords[0] - offset_coords[0], coords[1] - offset_coords[1]]);
 
-        }
-
-        adjust = true; // sdjust all after first skip
       }
       previous_position = [e.clientX, e.clientY];
     }
