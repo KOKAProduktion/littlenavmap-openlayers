@@ -13,6 +13,7 @@ import {
 import View from 'ol/View';
 
 import InitPointerOverlay from './msfs2020/InitPointerOverlay';
+import Layer from 'ol/layer/layer';
 
 // init ol map
 var map = new Map({

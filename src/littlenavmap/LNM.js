@@ -1,4 +1,7 @@
+import Projection from 'ol/proj/projection';
 import XYZ from 'ol/source/XYZ';
+import TileGrid from 'ol/tileGrid/TileGrid';
+import {toLonLat} from 'ol/proj';
 
 const ATTRIBUTION =
     '&#169; ' +
@@ -22,8 +25,11 @@ export default class LNM extends XYZ {
 
         const url =
             options.url !== undefined ?
-            options.url :
-            'http://littlenavmap.local/mapimage?format=png&quality=100&width=256&height=256';
+                options.url :
+                'http://littlenavmap.local/mapimage?format=png&quality=100&width=256&height=256';
+
+
+        
 
         super({
             attributions: attributions,
@@ -39,31 +45,26 @@ export default class LNM extends XYZ {
             transition: options.transition,
             url: url,
             wrapX: options.wrapX,
+            tileSize: [256,256],
         });
 
         this.setTileLoadFunction(this.defaultTileLoadFunction.bind(this));
+    
 
     }
 
     defaultTileLoadFunction(imageTile, src) {
         const tileGrid = this.getTileGrid();
 
-        const center = tileGrid.getTileCoordCenter(imageTile.getTileCoord());
-        const origin = tileGrid.getTileCoordForCoordAndZ(imageTile.getTileCoord(),imageTile.getTileCoord()[0]);
+        const extent =  tileGrid.getTileCoordExtent(imageTile.getTileCoord()); //tileGrid.getTileCoordExtent(imageTile.getTileCoord());
 
-        const extent = tileGrid.getTileCoordExtent(imageTile.getTileCoord());
-
-
-
-        console.log(extent);
+        const lefttop = toLonLat([extent[0],extent[1]])
+        const rightbottom = toLonLat([extent[2],extent[3]])
 
 
+        console.log(0, lefttop);
+        console.log(1, rightbottom);
 
-
-
-
-        imageTile.getImage().src = src +  "&lon="+center[0]*-1+"&lat="+center[1]*-1+"&distance=1200";
-        //imageTile.getImage().src = src + "&leftlon="+extent[0]*-1+"&toplat="+extent[1]*-1+"&rightlon="+extent[2]*-1+"&bottomlat="+extent[3]*-1+""; // "&lon="+center[0]*-1+"&lat="+center[1]*-1+"&distance=10";
-        //imageTile.getImage().src = src + "&leftlon=" + (origin[0] + extent[0]) * -1 + "&toplat=" + (origin[1] +extent[1]) * -1 + "&rightlon=" + (origin[0] +extent[2]) * -1 + "&bottomlat=" + (origin[1] +extent[3]) * -1 + ""; // "&lon="+center[0]*-1+"&lat="+center[1]*-1+"&distance=10";
+        imageTile.getImage().src = src + "&leftlon=" + lefttop[0]  + "&toplat=" +  lefttop[1]  + "&rightlon=" +  rightbottom[0]   + "&bottomlat=" +  rightbottom[1]   + ""; // "&lon="+center[0]*-1+"&lat="+center[1]*-1+"&distance=10";
     }
 }
