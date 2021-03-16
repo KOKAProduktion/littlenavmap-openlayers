@@ -62,8 +62,8 @@ export default class LNM extends XYZ {
             cacheSize: options.cacheSize,
             crossOrigin: crossOrigin,
             imageSmoothing: options.imageSmoothing,
-            maxZoom: options.maxZoom !== undefined ? options.maxZoom : 19,
-            minZoom: options.minZoom !== undefined ? options.minZoom : 2,
+            maxZoom: options.maxZoom !== undefined ? options.maxZoom : 14,
+            minZoom: options.minZoom !== undefined ? options.minZoom : 3,
             opaque: options.opaque !== undefined ? options.opaque : true,
             reprojectionErrorThreshold: options.reprojectionErrorThreshold,
             tileLoadFunction: options.tileLoadFunction ?
