@@ -1,7 +1,7 @@
 import 'ol/ol.css';
 import './index.css';
 import Map from 'ol/Map';
-import LNM from './littlenavmap/LNM';
+import LNM from './ol/source/LNM';
 import TileDebug from 'ol/source/TileDebug';
 import OSM from 'ol/source/OSM';
 import TileLayer from 'ol/layer/Tile';
