@@ -5,6 +5,7 @@ import LNM from './littlenavmap/LNM';
 import TileDebug from 'ol/source/TileDebug';
 import OSM from 'ol/source/OSM';
 import TileLayer from 'ol/layer/Tile';
+import { fromLonLat } from 'ol/proj';
 import {
   DragPan,
   MouseWheelZoom,
@@ -30,18 +31,22 @@ var map = new Map({
     new TileLayer({
       source: new LNM(),
     }),
-    new TileLayer({
-      source: new TileDebug(),
-    })
+    // new TileLayer({
+    //   source: new OSM(),
+    // }),
+    // new TileLayer({
+    //   source: new TileDebug(),
+    // })
   ],
   target: 'map',
-  view: new View({
-    center: [0, 0],
-    zoom: 2,
-  }),
+  view: new View(),
 });
+
+
 
 // init msfs iframe mouse event overlay
 window.onload = () => {
-  InitPointerOverlay(map);
+  var overlay = InitPointerOverlay(map);
+  map.getView().setCenter(fromLonLat([11.775111, 48.3536972]));
+  map.getView().setZoom(10);
 };

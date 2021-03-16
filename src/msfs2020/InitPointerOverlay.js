@@ -50,7 +50,8 @@ const InitPointerOverlay = (map) => {
         }
         view.setZoom(zoom);
     });
-
+    
+    return this;
 };
 
 export default InitPointerOverlay;
