@@ -6,6 +6,31 @@ import { toLonLat } from 'ol/proj';
 import proj4 from 'proj4';
 import { register } from 'ol/proj/proj4';
 
+const LNM_ZOOM_DISTANCES_METERS = [
+    40,
+    50,
+    110,
+    200,
+    400,
+    900,
+    1700,
+    3400,
+    6800,
+    13600,
+    27000,
+    55000,
+    109000,
+    218000,
+    436000,
+    872000,
+    1745000,
+    3489000,
+    6978000,
+    13956000,
+    19849000
+];
+
+
 const ATTRIBUTION =
     '&#169; ' +
     '<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> ' +
@@ -85,6 +110,7 @@ export default class LNM extends XYZ {
             crossOrigin: crossOrigin,
             imageSmoothing: options.imageSmoothing,
             maxZoom: options.maxZoom !== undefined ? options.maxZoom : 19,
+            minZoom: options.minZoom !== undefined ? options.minZoom : 2,
             opaque: options.opaque !== undefined ? options.opaque : true,
             reprojectionErrorThreshold: options.reprojectionErrorThreshold,
             tileLoadFunction: options.tileLoadFunction ?
@@ -110,15 +136,17 @@ export default class LNM extends XYZ {
 
         const center = tileGrid.getTileCoordCenter(imageTile.getTileCoord());
 
-        const margin = 200000;
+        const margin = Math.abs(extent[2] - extent[0]) / 6.6666;
+
+        console.log();
 
         const lefttop = toLonLat([extent[0] + margin, extent[1] + margin], this.getProjection())
         const rightbottom = toLonLat([extent[2] - margin, extent[3] - margin], this.getProjection())
 
         const centerLonLat = toLonLat([center[0], center[1]], this.getProjection());
 
-        console.log(0, lefttop);
-        console.log(1, rightbottom);
+        // console.log(0, lefttop);
+        // console.log(1, rightbottom);
 
         imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + ""; // "&lon="+center[0]*-1+"&lat="+center[1]*-1+"&distance=10";
         //imageTile.getImage().src = src + "&lon=" + centerLonLat[0] + "&lat=" + centerLonLat[1] + "&distance="+2000 / (imageTile.getTileCoord()[0] - 1);
