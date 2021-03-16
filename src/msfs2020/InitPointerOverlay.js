@@ -59,7 +59,10 @@ const InitPointerOverlay = (map) => {
         } else if (e.deltaY < 0 && zoom > view.getMinZoom()) {
             zoom -= 1;
         }
-        view.setZoom(zoom);
+        view.animate({
+            zoom: zoom,
+            duration: 200
+        });
     });
 
 };
