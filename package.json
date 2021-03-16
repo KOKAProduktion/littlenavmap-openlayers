@@ -1,7 +1,8 @@
 {
   "name": "accessible",
   "dependencies": {
-    "ol": "6.5.0"
+    "ol": "6.5.0",
+    "proj4": "^2.7.2"
   },
   "devDependencies": {
     "css-loader": "^5.1.2",
