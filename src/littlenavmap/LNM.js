@@ -23,7 +23,7 @@ export default class LNM extends XYZ {
         const crossOrigin =
             options.crossOrigin !== undefined ? options.crossOrigin : undefined;
 
-        const res = 256;
+        const res = 270;
 
         const url =
             options.url !== undefined ?
@@ -44,7 +44,8 @@ export default class LNM extends XYZ {
             transition: options.transition,
             url: url,
             wrapX: options.wrapX,
-            tileSize: [256, 256],
+            tileSize: [res, res],
+            projection: "EPSG:3857"
         });
 
         this.setTileLoadFunction(this.defaultTileLoadFunction.bind(this));
@@ -56,13 +57,17 @@ export default class LNM extends XYZ {
 
         const extent = tileGrid.getTileCoordExtent(imageTile.getTileCoord()); //tileGrid.getTileCoordExtent(imageTile.getTileCoord());
 
+        const center = tileGrid.getTileCoordCenter(imageTile.getTileCoord());
+
         const lefttop = toLonLat([extent[0], extent[1]])
         const rightbottom = toLonLat([extent[2], extent[3]])
 
+        const centerLonLat = toLonLat([center[0], center[1]]);
 
         console.log(0, lefttop);
         console.log(1, rightbottom);
 
         imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + ""; // "&lon="+center[0]*-1+"&lat="+center[1]*-1+"&distance=10";
+        //imageTile.getImage().src = src + "&lon=" + centerLonLat[0] + "&lat=" + centerLonLat[1] + "&distance="+2000 / (imageTile.getTileCoord()[0] - 1);
     }
 }
