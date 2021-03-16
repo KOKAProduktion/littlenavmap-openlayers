@@ -8,21 +8,32 @@ const InitPointerOverlay = (map) => {
     var zoom = 1;
     var previous_position = null;
 
-    // flag mouse down
+    // flag mouse down state
     var mouseDown = false;
-    document.body.onmousedown = function () {
+    document.body.onmousedown = function() {
         mouseDown = true;
     };
-    document.body.onmouseup = function () {
+    document.body.onmouseup = function() {
         previous_position = null; // clear obsolete last position (end of drag)
         mouseDown = false;
     };
 
-    // mouse event overlay
-    var pointer_overlay = document.getElementById("pointer_overlay");
+    // create mouse event overlay
+    var pointer_overlay = document.createElement('div');
+    pointer_overlay.classList.add("pointer_overlay");
 
-    // add pan
-    pointer_overlay.addEventListener('mousemove', function (e) {
+    var padding = "50px";
+    pointer_overlay.style.position = "absolute";
+    pointer_overlay.style.left = padding;
+    pointer_overlay.style.right = padding;
+    pointer_overlay.style.top = padding;
+    pointer_overlay.style.bottom = padding;
+    // pointer_overlay.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+
+    document.body.append(pointer_overlay);
+
+    // propagate pan
+    pointer_overlay.addEventListener('mousemove', function(e) {
         if (mouseDown) {
             if (previous_position) {
 
@@ -41,8 +52,8 @@ const InitPointerOverlay = (map) => {
         }
     });
 
-    // add zoom
-    pointer_overlay.addEventListener('wheel', function (e) {
+    // propagate zoom
+    pointer_overlay.addEventListener('wheel', function(e) {
         if (e.deltaY > 0 && zoom < view.getMaxZoom()) {
             zoom += 1;
         } else if (e.deltaY < 0 && zoom > view.getMinZoom()) {
@@ -50,8 +61,7 @@ const InitPointerOverlay = (map) => {
         }
         view.setZoom(zoom);
     });
-    
-    return this;
+
 };
 
 export default InitPointerOverlay;
