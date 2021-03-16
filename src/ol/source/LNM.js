@@ -65,6 +65,6 @@ export default class LNM extends XYZ {
         const rightbottom = toLonLat([extent[2] - margin, extent[3] - margin], this.getProjection());
 
         // get image for tile
-        imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "";
+        imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&reload=" + Math.random();
     }
 }

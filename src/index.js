@@ -10,11 +10,13 @@ import View from 'ol/View';
 
 import InitPointerOverlay from './msfs2020/InitPointerOverlay';
 
+var source = new LNM();
+
 // init ol map
 var map = new Map({
     layers: [
         new TileLayer({
-            source: new LNM(),
+            source: source,
         }),
         // new TileLayer({
         //   source: new OSM(),
