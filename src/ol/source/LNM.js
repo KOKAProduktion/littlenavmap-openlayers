@@ -67,4 +67,35 @@ export default class LNM extends XYZ {
         // get image for tile
         imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&reload=" + Math.random();
     }
+
+    getPixelRatio() {
+        const size = this.tileGrid.getTileSize();
+        return size[0] / size[1];
+    }
+
+    updateTileAtPixel(pixel, map) {
+
+        // get lonlat
+        const coordinate = map.getCoordinateFromPixel(pixel);
+
+        // update
+        this.updateTileAtLonLat(coordinate, map);
+
+    }
+
+    updateTileAtLonLat(coordinate, map) {
+
+        // get tile
+        const tileCoord = this.tileGrid.getTileCoordForCoordAndZ(coordinate, Math.round(map.getView().getZoom()));
+        const tile = this.getTile(tileCoord[0], tileCoord[1], tileCoord[2], this.getPixelRatio(), this.getProjection());
+
+        // update tile
+        this.defaultTileLoadFunction(tile, this.getUrls()[0]);
+
+        // re-render
+        setTimeout(() => {
+            map.renderSync();
+        }, 200);
+
+    }
 }
