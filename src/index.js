@@ -19,6 +19,7 @@ var map = new Map({
     layers: [
         new TileLayer({
             source: source,
+            className: "lnm-layer"
         }),
         // new TileLayer({
         //   source: new OSM(),
@@ -33,6 +34,15 @@ var map = new Map({
         minZoom: 3
     }),
 });
+
+
+// map.on('click', function (event) {
+//     map.forEachLayerAtPixel(event.pixel, function (layer) {
+//         if (layer.getClassName() == "lnm-layer") {
+//             source.updateTileAtPixel(event.pixel, map);
+//         }
+//     });
+// });
 
 window.onload = () => {
 
