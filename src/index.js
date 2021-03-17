@@ -5,7 +5,9 @@ import LNM from './ol/source/LNM';
 import TileDebug from 'ol/source/TileDebug';
 import OSM from 'ol/source/OSM';
 import TileLayer from 'ol/layer/Tile';
-import { fromLonLat } from 'ol/proj';
+import {
+    fromLonLat
+} from 'ol/proj';
 import View from 'ol/View';
 
 import InitPointerOverlay from './msfs2020/InitPointerOverlay';
@@ -26,7 +28,10 @@ var map = new Map({
         // })
     ],
     target: 'map',
-    view: new View(),
+    view: new View({
+        maxZoom: 13,
+        minZoom: 3
+    }),
 });
 
 window.onload = () => {
