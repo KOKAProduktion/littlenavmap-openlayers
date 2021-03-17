@@ -39,8 +39,8 @@ var map = new Map({
 });
 
 
-map.on('click', function (event) {
-    map.forEachLayerAtPixel(event.pixel, function (layer) {
+map.on('click', function(event) {
+    map.forEachLayerAtPixel(event.pixel, function(layer) {
         if (layer.getClassName() == "lnm-layer") {
             source.updateTileAtPixel(event.pixel, map);
         }
@@ -50,7 +50,7 @@ map.on('click', function (event) {
 window.onload = () => {
 
     // init msfs iframe mouse event overlay
-    // InitPointerOverlay(map);
+    InitPointerOverlay(map);
 
     // Set initial zoom
     map.getView().setZoom(2);

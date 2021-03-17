@@ -1,6 +1,3 @@
-import {
-    parse
-} from 'node-html-parser';
 export default class LittleNavmap {
 
     fetch(url, success, failure) {
@@ -18,11 +15,20 @@ export default class LittleNavmap {
 
         this.fetch('http://littlenavmap.local/progress_doc.html', (data) => {
 
-            var html = parse(data);
+            // Using native parser (for ingame panel/iframe compatibility)
+            const parser = new DOMParser();
+
+            // fix incomplete LNM markup (missing table tag) before parsing
+            data = data.replace("<h4>Position</h4>", "<table><h4>Position</h4>");
+
+            // parse to document
+            const html = parser.parseFromString(data, "text/html");
 
             // extract and parse position string
-            var nodes = html.querySelectorAll('td:last-child');
-            var coordstr = nodes[nodes.length - 1].text.replace(/,/g, "."); // swap , for .
+            var nodes = html.querySelectorAll('td');
+
+            // DMS string is located inside the last td
+            var coordstr = nodes[nodes.length - 1].textContent.replace(/,/g, "."); // swap , for .
             var coords = this.ParseDMS(coordstr);
 
             success(coords);
