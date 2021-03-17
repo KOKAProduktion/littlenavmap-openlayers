@@ -56,13 +56,24 @@ window.onload = () => {
     map.getView().setZoom(2);
 
     map.getView().setCenter(fromLonLat([11.775111, 48.3536972]));
-    //refreshLoop();
+
+    setTimeout(refreshLoop, 1000); // delay first loop
 
 };
 
 function refreshLoop() {
 
-    littlenavmap.getAircraftPosition();
+    littlenavmap.getAircraftPosition((coords) => {
+
+        const lonlat = fromLonLat(coords);
+
+        map.getView().animate({
+            center: lonlat,
+            duration: 200
+        })
+        source.updateTileAtLonLat(lonlat, map);
+
+    });
     setTimeout(refreshLoop, 1000);
 
 }
