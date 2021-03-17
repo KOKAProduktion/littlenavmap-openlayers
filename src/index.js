@@ -11,8 +11,11 @@ import {
 import View from 'ol/View';
 
 import InitPointerOverlay from './msfs2020/InitPointerOverlay';
+import LittleNavmap from './littlenavmap/LittleNavmap';
 
 var source = new LNM();
+
+var littlenavmap = new LittleNavmap();
 
 // init ol map
 var map = new Map({
@@ -36,21 +39,30 @@ var map = new Map({
 });
 
 
-// map.on('click', function (event) {
-//     map.forEachLayerAtPixel(event.pixel, function (layer) {
-//         if (layer.getClassName() == "lnm-layer") {
-//             source.updateTileAtPixel(event.pixel, map);
-//         }
-//     });
-// });
+map.on('click', function (event) {
+    map.forEachLayerAtPixel(event.pixel, function (layer) {
+        if (layer.getClassName() == "lnm-layer") {
+            source.updateTileAtPixel(event.pixel, map);
+        }
+    });
+});
 
 window.onload = () => {
 
     // init msfs iframe mouse event overlay
-    InitPointerOverlay(map);
+    // InitPointerOverlay(map);
 
     // Set initial zoom
     map.getView().setZoom(2);
 
     map.getView().setCenter(fromLonLat([11.775111, 48.3536972]));
+    //refreshLoop();
+
 };
+
+function refreshLoop() {
+
+    littlenavmap.getAircraftPosition();
+    setTimeout(refreshLoop, 1000);
+
+}
