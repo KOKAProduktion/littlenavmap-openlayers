@@ -1,5 +1,24 @@
+/* 
+ * Copyright 2021 Kosma Kaczmarski <info@koka-produktion.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import XYZ from 'ol/source/XYZ';
-import { toLonLat } from 'ol/proj';
+import {
+    toLonLat
+} from 'ol/proj';
 
 // import proj4 from 'proj4';
 // import { register } from 'ol/proj/proj4';
@@ -8,6 +27,15 @@ const ATTRIBUTION =
     '&#169; ' +
     '<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors. | <a href="https://albar965.github.io/littlenavmap.html" target="_blank">Little Navmap</a> ' +
     '';
+
+/**
+ * Custom openlayers tiled source implementation for 
+ * the Little Navmap server
+ * 
+ * - handling map grid and tiles
+ * - translating ol tile coordinates to LNM rect URL's
+ * - refreshing single tiles
+ */
 export default class LNM extends XYZ {
 
     constructor(opt_options) {
@@ -23,8 +51,8 @@ export default class LNM extends XYZ {
         const crossOrigin =
             options.crossOrigin !== undefined ? options.crossOrigin : undefined;
 
-        const res = [256, 256];
-        const size = [256, 300]; // LNM appears to return non-square images disregarding 'res' height param
+        const res = [256, 256]; // requested resolution
+        const size = [256, 300]; // returning resolution : LNM appears to return non-square images disregarding 'res' height param
 
         const url =
             options.url !== undefined ?
@@ -53,6 +81,11 @@ export default class LNM extends XYZ {
         this.setTileLoadFunction(this.defaultTileLoadFunction.bind(this));
     }
 
+    /**
+     * Generate rect url from tile extent and update the tile's img src
+     * @param {ImageTile} imageTile 
+     * @param {string} src 
+     */
     defaultTileLoadFunction(imageTile, src) {
 
         const tileGrid = this.getTileGrid();
@@ -68,11 +101,20 @@ export default class LNM extends XYZ {
         imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&reload=" + Math.random();
     }
 
+    /**
+     * Get aspect ratio of tile size
+     * @returns number
+     */
     getPixelRatio() {
         const size = this.tileGrid.getTileSize();
         return size[0] / size[1];
     }
 
+    /**
+     * Refresh tile at map/screen pixel
+     * @param {array} pixel 
+     * @param {Map} map 
+     */
     updateTileAtPixel(pixel, map) {
 
         // get lonlat
@@ -82,7 +124,11 @@ export default class LNM extends XYZ {
         this.updateTileAtLonLat(coordinate, map);
 
     }
-
+    /**
+     * Refresh tile at ol coordinate
+     * @param {array} coordinate 
+     * @param {Map} map 
+     */
     updateTileAtLonLat(coordinate, map) {
 
         // get tile
