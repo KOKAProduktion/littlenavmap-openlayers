@@ -13,9 +13,11 @@ This JS application is built using node.js/webpack into a static HTML/JS package
 
 - [dist/Little Navmap/web/ol](dist/Little+Navmap/web/ol)
 
-It is intended to be served via the LNM built-in web server.
+It is intended to be served via the LNM built-in web server. 
 
 ## Installation
+
+Little Navmap **Version 2.6.10 (Revision 9e09a8a9)**
 
 Build your own bundle or copy the above mentioned `ol` folder into your LNM installation's web directory
 
