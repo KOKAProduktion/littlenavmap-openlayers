@@ -7,9 +7,7 @@ import {
 import InitPointerOverlay from './msfs2020/InitPointerOverlay';
 import LittleNavmap from './littlenavmap/LittleNavmap';
 
-
-
-// init LNM handler
+// init LNM controller
 var littlenavmap = new LittleNavmap();
 
 window.onload = () => {
@@ -21,6 +19,7 @@ window.onload = () => {
     littlenavmap.map.getView().setZoom(2);
     littlenavmap.map.getView().setCenter(fromLonLat([0, 0]));
 
+    // start refreshing
     littlenavmap.startRefreshLoop();
 
 };

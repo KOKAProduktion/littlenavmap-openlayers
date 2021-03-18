@@ -14,12 +14,19 @@ import {
 import FollowControl from '../ol/control/FollowControl';
 import RefreshControl from '../ol/control/RefreshControl';
 
+/**
+ * Littlenavmap - openlayers controller
+ * 
+ * - Inits and holds openlayers components and map
+ * - Requests sim info
+ * - Runs the refresh loop
+ */
 export default class LittleNavmap {
 
 
     constructor() {
 
-        // init ol components
+        // ol components
         this.sources = [new LNM(), new LNM()];
         this.activesource = 0;
         this.layers = [
@@ -42,15 +49,20 @@ export default class LittleNavmap {
             // })
 
         ];
+
+        // flags
         this.following = true;
 
+        // proceed
         this.initMap();
-
     }
 
-
+    /**
+     * Setup and init ol map
+     */
     initMap() {
 
+        // controls
         const controls = [
             new FollowControl({
                 handleFollow: () => {
@@ -77,18 +89,24 @@ export default class LittleNavmap {
             })
         });
 
-        // Refresh tile at pixel
-        this.map.on('click', function (event) {
-            this.map.forEachLayerAtPixel(event.pixel, function (layer) {
-                if (layer.getClassName() == "lnm-layer-0" || layer.getClassName() == "lnm-layer-1") {
-                    this.sources[activesource].updateTileAtPixel(event.pixel, this.map);
-                }
-            });
-        });
+        // Refresh tile at pixel (debugging purpose)
+        // this.map.on('click', function (event) {
+        //     this.map.forEachLayerAtPixel(event.pixel, function (layer) {
+        //         if (layer.getClassName() == "lnm-layer-0" || layer.getClassName() == "lnm-layer-1") {
+        //             this.sources[activesource].updateTileAtPixel(event.pixel, this.map);
+        //         }
+        //     });
+        // });
 
     }
 
-
+    /**
+     * Fetch implementation
+     * 
+     * @param {string} url 
+     * @param {Function} success 
+     * @param {Function} failure 
+     */
     fetch(url, success, failure) {
         fetch(url).then(response => response.text())
             .then(data => success(data)).catch((error) => {
@@ -102,6 +120,7 @@ export default class LittleNavmap {
      */
     getAircraftPosition(success) {
 
+        // note: This is a hack extracting the required info from html.
         this.fetch('http://littlenavmap.local/progress_doc.html', (data) => {
 
             // Using native parser (for ingame panel/iframe compatibility)
@@ -125,11 +144,11 @@ export default class LittleNavmap {
             }
         }, (error) => {
             console.log(error);
-        })
+        });
     }
 
     /**
-     * Parses DMS string ("deg min sec dir, deg min sec dir") to decimal degrees (lon, lat)
+     * Parse DMS string ("deg min sec dir, deg min sec dir") to decimal degrees (lon, lat)
      * @see https://stackoverflow.com/a/1140335
      */
     ParseDMS(input) {
@@ -142,7 +161,7 @@ export default class LittleNavmap {
     }
 
     /**
-     * Converts DMS to decimal degrees
+     * Convert DMS to decimal degrees
      * @see https://stackoverflow.com/a/1140335
      */
     ConvertDMSToDD(degrees, minutes, seconds, direction) {
@@ -155,12 +174,17 @@ export default class LittleNavmap {
         return dd;
     }
 
-
+    /**
+     * Loop trigger
+     */
     startRefreshLoop() {
         // start update loop
         setTimeout(this.refreshLoop.bind(this), 1000); // delay first loop
     }
 
+    /**
+     * Loop
+     */
     refreshLoop() {
 
         this.getAircraftPosition((coords) => {
@@ -176,7 +200,7 @@ export default class LittleNavmap {
                 this.map.getView().animate({
                     center: lonlat,
                     duration: 200
-                })
+                });
             }
 
             // update image on hidden source (avoid flickering)
@@ -187,6 +211,9 @@ export default class LittleNavmap {
 
     }
 
+    /**
+     * Toggle between sources
+     */
     toggleActiveSource() {
         if (this.activesource < 1) {
             this.activesource = 1;
