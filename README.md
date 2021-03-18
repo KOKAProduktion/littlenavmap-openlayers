@@ -27,9 +27,15 @@ The application should become accessible as soon as the LNM server has started v
 
 e.g. http://localhost:8965/ol/index.html
 
-Issues & Concerns:
+## Issues & Concerns:
 - Dirty/Incomplete renderings
 - Redundant display of map data
 - Higher load on LNM server
 - Hacky LNM data retrieval
 - Missing close zoom levels
+
+## Credits
+
+A huge, fat, THANK YOU, [@albar965](https://github.com/albar965) for providing this awesome, not so "little" software! :)
+
+Thanks also to [@bymaximus](https://github.com/bymaximus) for sharing the MSFS2020 in-game panel projects which have inspired me to write this.
