@@ -24,10 +24,19 @@ import {
 import InitPointerOverlay from './msfs2020/InitPointerOverlay';
 import LittleNavmap from './littlenavmap/LittleNavmap';
 
-const LittleNavmapUrl = 'http://littlenavmap.local/';
+// LNM URL's
+var LNM_URL = {
+    production: "/", // Served inside LNM built-in server
+    development: "http://littlenavmap.local/" // Proxy to avoid CORS issues
+}
+
+// check environment mode
+var environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+
+console.log("Starting " + environment + " mode:", LNM_URL[environment]);
 
 // init LNM controller
-var littlenavmap = new LittleNavmap(LittleNavmapUrl, 'map');
+var littlenavmap = new LittleNavmap(LNM_URL[environment], 'map');
 
 window.onload = () => {
 
