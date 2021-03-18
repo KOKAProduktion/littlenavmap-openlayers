@@ -16,7 +16,7 @@ This implementation provides:
 
 This JS application is built using node.js/webpack into a static HTML/JS package located at:
 
-- [dist/Little Navmap/web/ol](dist/Little+Navmap/web/ol)
+- [dist/Little Navmap/web/ol](https://github.com/KOKAProduktion/littlenavmap-openlayers/tree/master/dist/Little%20Navmap/web/ol)
 
 It is intended to be served via the LNM built-in web server. 
 
