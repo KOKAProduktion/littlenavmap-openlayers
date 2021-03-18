@@ -27,12 +27,13 @@ export default class LittleNavmap {
             // extract and parse position string
             var nodes = html.querySelectorAll('td');
 
-            // DMS string is located inside the last td
-            var coordstr = nodes[nodes.length - 1].textContent.replace(/,/g, "."); // swap , for .
-            var coords = this.ParseDMS(coordstr);
+            if (nodes.length > 0) {
+                // DMS string is located inside the last td
+                var coordstr = nodes[nodes.length - 1].textContent.replace(/,/g, "."); // swap , for .
+                var coords = this.ParseDMS(coordstr);
 
-            success(coords);
-
+                success(coords);
+            }
         }, (error) => {
             console.log(error);
         })
