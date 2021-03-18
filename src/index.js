@@ -13,24 +13,43 @@ import View from 'ol/View';
 import InitPointerOverlay from './msfs2020/InitPointerOverlay';
 import LittleNavmap from './littlenavmap/LittleNavmap';
 
-var source = new LNM();
+var sources = [new LNM(), new LNM()];
+
+sources.forEach(source => {
+
+
+
+});
+
+
+var activesource = 0;
+
+var layers = [
+
+    new TileLayer({
+        source: sources[0],
+        className: "lnm-layer-0",
+        visible: true
+    }),
+    new TileLayer({
+        source: sources[1],
+        className: "lnm-layer-1",
+        visible: false,
+    }),
+    // new TileLayer({
+    //   source: new OSM(),
+    // }),
+    // new TileLayer({
+    //   source: new TileDebug(),
+    // })
+
+];
 
 var littlenavmap = new LittleNavmap();
 
 // init ol map
 var map = new Map({
-    layers: [
-        new TileLayer({
-            source: source,
-            className: "lnm-layer"
-        }),
-        // new TileLayer({
-        //   source: new OSM(),
-        // }),
-        // new TileLayer({
-        //   source: new TileDebug(),
-        // })
-    ],
+    layers: layers,
     target: 'map',
     view: new View({
         maxZoom: 13,
@@ -41,8 +60,8 @@ var map = new Map({
 
 map.on('click', function(event) {
     map.forEachLayerAtPixel(event.pixel, function(layer) {
-        if (layer.getClassName() == "lnm-layer") {
-            source.updateTileAtPixel(event.pixel, map);
+        if (layer.getClassName() == "lnm-layer-0" || layer.getClassName() == "lnm-layer-1") {
+            sources[activesource].updateTileAtPixel(event.pixel, map);
         }
     });
 });
@@ -65,15 +84,44 @@ function refreshLoop() {
 
     littlenavmap.getAircraftPosition((coords) => {
 
+
+        toggleActiveSource();
+
         const lonlat = fromLonLat(coords);
 
         map.getView().animate({
             center: lonlat,
             duration: 200
         })
-        source.updateTileAtLonLat(lonlat, map);
+        sources[activesource == 0 ? 1 : 0].updateTileAtLonLat(lonlat, map);
 
     });
     setTimeout(refreshLoop, 1000);
+
+}
+
+function toggleActiveSource() {
+
+
+    if (activesource < 1) {
+
+        activesource = 1;
+        layers[1].setVisible(true);
+
+        layers[0].setVisible(false);
+        //sources[0].refresh();
+        console.log("tok");
+
+    } else {
+
+        activesource = 0;
+        layers[0].setVisible(true);
+
+        layers[1].setVisible(false);
+        //sources[1].refresh();
+        console.log("tik");
+    }
+
+
 
 }
