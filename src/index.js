@@ -28,7 +28,7 @@ import LittleNavmap from './littlenavmap/LittleNavmap';
 var LNM_URL = {
     production: "/", // Served inside LNM built-in server
     development: "http://littlenavmap.local/" // Proxy to avoid CORS issues
-}
+};
 
 // check environment mode
 var environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
