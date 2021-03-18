@@ -15,10 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Control } from 'ol/control';
+import {
+    Control
+} from 'ol/control';
 import PlaneSVG from '../../assets/svg/aircraft_small_user.svg';
 
-const FollowControl = /*@__PURE__*/ (function(Control) {
+const FollowControl = /*@__PURE__*/ (function (Control) {
 
     var handleFollowCallback;
     var toggle = true;

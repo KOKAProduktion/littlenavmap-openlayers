@@ -39,11 +39,20 @@ import RefreshControl from '../ol/control/RefreshControl';
  * - Runs the refresh loop
  */
 export default class LittleNavmap {
-    constructor() {
+    constructor(url, target) {
+        this.url = url;
+        this.target = target;
+        this.refreshInterval = 1000;
 
-        // ol components
-        this.sources = [new LNM(), new LNM()];
+        // ol sources
+        this.sources = [new LNM({
+            url: this.url
+        }), new LNM({
+            url: this.url
+        })];
         this.activesource = 0;
+
+        // ol layers
         this.layers = [
             new TileLayer({
                 source: this.sources[0],
@@ -95,7 +104,7 @@ export default class LittleNavmap {
         this.map = new Map({
             controls: controls,
             layers: this.layers,
-            target: 'map',
+            target: this.target,
             view: new View({
                 maxZoom: 13, // Remember source settings
                 minZoom: 3
@@ -134,7 +143,7 @@ export default class LittleNavmap {
     getAircraftPosition(success) {
 
         // note: This is a hack extracting the required info from html.
-        this.fetch('http://littlenavmap.local/progress_doc.html', (data) => {
+        this.fetch(this.url + 'progress_doc.html', (data) => {
 
             // Using native parser (for ingame panel/iframe compatibility)
             const parser = new DOMParser();
@@ -199,7 +208,7 @@ export default class LittleNavmap {
      */
     startRefreshLoop() {
         // start update loop
-        setTimeout(this.refreshLoop.bind(this), 1000); // delay first loop
+        setTimeout(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
     }
 
     /**
@@ -227,7 +236,7 @@ export default class LittleNavmap {
             this.sources[this.activesource == 0 ? 1 : 0].updateTileAtLonLat(lonlat, this.map);
 
         });
-        setTimeout(this.refreshLoop.bind(this), 1000);
+        setTimeout(this.refreshLoop.bind(this), this.refreshInterval);
 
     }
 

@@ -24,8 +24,10 @@ import {
 import InitPointerOverlay from './msfs2020/InitPointerOverlay';
 import LittleNavmap from './littlenavmap/LittleNavmap';
 
+const LittleNavmapUrl = 'http://littlenavmap.local/';
+
 // init LNM controller
-var littlenavmap = new LittleNavmap();
+var littlenavmap = new LittleNavmap(LittleNavmapUrl, 'map');
 
 window.onload = () => {
 
