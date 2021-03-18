@@ -29,6 +29,10 @@ The application should become accessible as soon as the LNM server has started v
 
 e.g. http://localhost:8965/ol/index.html
 
+## MSFS2020 Support
+
+This application can be embedded as an MSFS2020 in-game panel via [msfs2020-littlenavmap-openlayers](https://github.com/KOKAProduktion/msfs2020-littlenavmap-openlayers)
+
 ## Possible Issues & Concerns:
 - Dirty/Incomplete renderings
 - Redundant display of map data
