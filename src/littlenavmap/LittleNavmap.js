@@ -1,3 +1,20 @@
+/* 
+ * Copyright 2021 Kosma Kaczmarski <info@koka-produktion.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import Map from 'ol/Map';
 
 import LNM from '../ol/source/LNM';
@@ -18,19 +35,16 @@ import RefreshControl from '../ol/control/RefreshControl';
  * Littlenavmap - openlayers controller
  * 
  * - Inits and holds openlayers components and map
- * - Requests sim info
+ * - Requests sim info from LNM html's
  * - Runs the refresh loop
  */
 export default class LittleNavmap {
-
-
     constructor() {
 
         // ol components
         this.sources = [new LNM(), new LNM()];
         this.activesource = 0;
         this.layers = [
-
             new TileLayer({
                 source: this.sources[0],
                 className: "lnm-layer-0",
@@ -47,7 +61,6 @@ export default class LittleNavmap {
             // new TileLayer({
             //   source: new TileDebug(),
             // })
-
         ];
 
         // flags
@@ -89,7 +102,7 @@ export default class LittleNavmap {
             })
         });
 
-        // Refresh tile at pixel (debugging purpose)
+        // refresh tile at pixel (debugging)
         // this.map.on('click', function (event) {
         //     this.map.forEachLayerAtPixel(event.pixel, function (layer) {
         //         if (layer.getClassName() == "lnm-layer-0" || layer.getClassName() == "lnm-layer-1") {
@@ -150,6 +163,8 @@ export default class LittleNavmap {
     /**
      * Parse DMS string ("deg min sec dir, deg min sec dir") to decimal degrees (lon, lat)
      * @see https://stackoverflow.com/a/1140335
+     * @param {string} input 
+     * @returns 
      */
     ParseDMS(input) {
         var parts = input.split(/[^\d\w!.]+/);
@@ -163,6 +178,11 @@ export default class LittleNavmap {
     /**
      * Convert DMS to decimal degrees
      * @see https://stackoverflow.com/a/1140335
+     * @param {number} degrees 
+     * @param {number} minutes 
+     * @param {number} seconds 
+     * @param {string} direction 
+     * @returns 
      */
     ConvertDMSToDD(degrees, minutes, seconds, direction) {
 
@@ -226,6 +246,4 @@ export default class LittleNavmap {
             this.layers[1].setVisible(false);
         }
     }
-
-
 }
