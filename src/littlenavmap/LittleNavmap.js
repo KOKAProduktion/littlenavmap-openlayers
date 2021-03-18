@@ -1,4 +1,93 @@
+import Map from 'ol/Map';
+
+import LNM from '../ol/source/LNM';
+import TileDebug from 'ol/source/TileDebug';
+import OSM from 'ol/source/OSM';
+
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+
+import {
+    fromLonLat
+} from 'ol/proj';
+
+import FollowControl from '../ol/control/FollowControl';
+import RefreshControl from '../ol/control/RefreshControl';
+
 export default class LittleNavmap {
+
+
+    constructor() {
+
+        // init ol components
+        this.sources = [new LNM(), new LNM()];
+        this.activesource = 0;
+        this.layers = [
+
+            new TileLayer({
+                source: this.sources[0],
+                className: "lnm-layer-0",
+                visible: true
+            }),
+            new TileLayer({
+                source: this.sources[1],
+                className: "lnm-layer-1",
+                visible: false,
+            }),
+            // new TileLayer({
+            //   source: new OSM(),
+            // }),
+            // new TileLayer({
+            //   source: new TileDebug(),
+            // })
+
+        ];
+        this.following = true;
+
+        this.initMap();
+
+    }
+
+
+    initMap() {
+
+        const controls = [
+            new FollowControl({
+                handleFollow: () => {
+                    this.following = !this.following;
+                }
+            }),
+            new RefreshControl({
+                handleRefresh: () => {
+                    this.sources.forEach((source) => {
+                        source.refresh();
+                    });
+                }
+            })
+        ];
+
+        // init ol map
+        this.map = new Map({
+            controls: controls,
+            layers: this.layers,
+            target: 'map',
+            view: new View({
+                maxZoom: 13,
+                minZoom: 3
+            })
+        });
+
+        // Refresh tile at pixel
+        this.map.on('click', function (event) {
+            this.map.forEachLayerAtPixel(event.pixel, function (layer) {
+                if (layer.getClassName() == "lnm-layer-0" || layer.getClassName() == "lnm-layer-1") {
+                    this.sources[activesource].updateTileAtPixel(event.pixel, this.map);
+                }
+            });
+        });
+
+    }
+
 
     fetch(url, success, failure) {
         fetch(url).then(response => response.text())
@@ -64,6 +153,51 @@ export default class LittleNavmap {
             dd = dd * -1;
         } // Don't do anything for N or E
         return dd;
+    }
+
+
+    startRefreshLoop() {
+        // start update loop
+        setTimeout(this.refreshLoop.bind(this), 1000); // delay first loop
+    }
+
+    refreshLoop() {
+
+        this.getAircraftPosition((coords) => {
+
+            // swap active source
+            this.toggleActiveSource();
+
+            // get map plane coords
+            const lonlat = fromLonLat(coords);
+
+            if (this.following) {
+                // center to position
+                this.map.getView().animate({
+                    center: lonlat,
+                    duration: 200
+                })
+            }
+
+            // update image on hidden source (avoid flickering)
+            this.sources[this.activesource == 0 ? 1 : 0].updateTileAtLonLat(lonlat, this.map);
+
+        });
+        setTimeout(this.refreshLoop.bind(this), 1000);
+
+    }
+
+    toggleActiveSource() {
+        if (this.activesource < 1) {
+            this.activesource = 1;
+            this.layers[1].setVisible(true);
+            this.layers[0].setVisible(false);
+
+        } else {
+            this.activesource = 0;
+            this.layers[0].setVisible(true);
+            this.layers[1].setVisible(false);
+        }
     }
 
 
