@@ -10,6 +10,8 @@ This implementation provides:
 - User Aircraft follow logic if available
 - Fixes and workarounds to work inside limited iframe environments (e.g. MSFS2020 VR)
 
+**State:** Prototype
+
 ## Structure
 
 This JS application is built using node.js/webpack into a static HTML/JS package located at:
