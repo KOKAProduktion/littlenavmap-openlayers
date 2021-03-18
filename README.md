@@ -27,7 +27,7 @@ The application should become accessible as soon as the LNM server has started v
 
 e.g. http://localhost:8965/ol/index.html
 
-## Issues & Concerns:
+## Possible Issues & Concerns:
 - Dirty/Incomplete renderings
 - Redundant display of map data
 - Higher load on LNM server
