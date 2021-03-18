@@ -6,8 +6,8 @@
 [OpenLayers](https://openlayers.org/) implementation of the [albar965/littlenavmap](https://albar965.github.io/) local web service.
 
 This implementation provides:
-- A browser-based pan/zoomable littlenavmap-generated map
-- User Aircraft follow logic if available
+- A browser-based pan/zoomable littlenavmap-generated tile map
+- Toggleable User Aircraft follow logic if available
 - Fixes and workarounds to work inside limited iframe environments (e.g. MSFS2020 VR)
 
 **State:** Prototype
@@ -44,6 +44,7 @@ This application can be embedded as an MSFS2020 in-game panel via [msfs2020-litt
 - Higher load on LNM server
 - Hacky LNM data retrieval
 - Missing close zoom levels
+- No clickable features
 
 ## Credits
 
