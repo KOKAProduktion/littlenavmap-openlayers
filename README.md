@@ -3,7 +3,7 @@
 
 # littlenavmap-openlayers
 
-[OpenLayers](https://openlayers.org/) implementation of the [albar965/littlenavmap](https://albar965.github.io/) local web service.
+[OpenLayers](https://openlayers.org/) web UI implementation of the [albar965/littlenavmap](https://albar965.github.io/) local web service.
 
 This implementation provides:
 - A browser-based pan/zoomable littlenavmap-generated tile map
