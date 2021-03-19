@@ -45,6 +45,8 @@ This application can be embedded as an MSFS2020 in-game panel via [msfs2020-litt
 - Hacky LNM data retrieval
 - Missing close zoom levels
 - No clickable features
+- Displayed LNM position data must be GPS (deg,mins,secs,direction)
+- Mercator projection only
 
 ## Credits
 
