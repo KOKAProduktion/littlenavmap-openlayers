@@ -7,7 +7,7 @@
 
 This implementation provides:
 - A browser-based pan/zoomable littlenavmap-generated tile map
-- Toggleable User Aircraft follow logic if available
+- Toggleable user aircraft follow logic if available
 - Fixes and workarounds to work inside limited iframe environments (e.g. MSFS2020 VR)
 
 **State:** Prototype
