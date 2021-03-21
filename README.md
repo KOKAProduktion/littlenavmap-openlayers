@@ -42,7 +42,7 @@ This application can be embedded as an MSFS2020 in-game panel via [msfs2020-litt
 - Dirty/Incomplete renderings
 - Redundant display of map data
 - Higher load on LNM server
-- Hacky LNM data retrieval
+- Hacky data retrieval from LNM 
 - Missing close zoom levels
 - No clickable features
 - Displayed LNM position data must be GPS (deg,mins,secs,direction)
