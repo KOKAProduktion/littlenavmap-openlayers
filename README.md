@@ -12,6 +12,8 @@ This implementation provides:
 
 **State:** Prototype
 
+Follow discussion at: [LNM - OpenLayers Integration Roadmap](https://github.com/albar965/littlenavmap/discussions/677)
+
 ## Structure
 
 This JS application is built using node.js/webpack into a static HTML/JS package located at:
