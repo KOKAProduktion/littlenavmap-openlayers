@@ -27,7 +27,7 @@ import LittleNavmap from './littlenavmap/LittleNavmap';
 // LNM URL's
 var LNM_URL = {
     production: "/", // Served inside LNM built-in server
-    development: "http://littlenavmap.local/" // Proxy to avoid CORS issues
+    development: "http://localhost:8965/" // Local LNM Web API
 };
 
 // check environment mode
@@ -47,7 +47,7 @@ window.onload = () => {
     littlenavmap.map.getView().setZoom(2);
     littlenavmap.map.getView().setCenter(fromLonLat([0, 0]));
 
-    // start refreshing
-    littlenavmap.startRefreshLoop();
+    // start refreshing (disabled)
+    // littlenavmap.startRefreshLoop();
 
 };
