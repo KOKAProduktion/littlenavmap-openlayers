@@ -47,8 +47,6 @@ export default class LittleNavmap {
         // ol sources
         this.sources = [new LNM({
             url: this.url
-        }), new LNM({
-            url: this.url
         })];
         this.activesource = 0;
 
@@ -58,11 +56,6 @@ export default class LittleNavmap {
                 source: this.sources[0],
                 className: "lnm-layer-0",
                 visible: true
-            }),
-            new TileLayer({
-                source: this.sources[1],
-                className: "lnm-layer-1",
-                visible: false,
             }),
             // new TileLayer({
             //   source: new OSM(),
@@ -143,26 +136,12 @@ export default class LittleNavmap {
     getAircraftPosition(success) {
 
         // note: This is a hack extracting the required info from html.
-        this.fetch(this.url + 'progress_doc.html', (data) => {
-
-            // Using native parser (for ingame panel/iframe compatibility)
-            const parser = new DOMParser();
-
-            // fix incomplete LNM markup (missing table tag) before parsing
-            data = data.replace("<h4>Position</h4>", "<table><h4>Position</h4>");
-
-            // parse to document
-            const html = parser.parseFromString(data, "text/html");
-
-            // extract and parse position string
-            var nodes = html.querySelectorAll('td');
-
-            if (nodes.length > 0) {
-                // DMS string is located inside the last td
-                var coordstr = nodes[nodes.length - 1].textContent.replace(/,/g, "."); // swap , for .
-                var coords = this.ParseDMS(coordstr);
-
-                success(coords);
+        this.fetch(this.url + 'api/sim/info', (data) => {
+            try {
+                const json = JSON.parse(data);
+                success([json.position.lon, json.position.lat]);
+            } catch (e) {
+                console.log(e);
             }
         }, (error) => {
             console.log(error);
@@ -218,9 +197,6 @@ export default class LittleNavmap {
 
         this.getAircraftPosition((coords) => {
 
-            // swap active source
-            this.toggleActiveSource();
-
             // get map plane coords
             const lonlat = fromLonLat(coords);
 
@@ -231,9 +207,6 @@ export default class LittleNavmap {
                     duration: 200
                 });
             }
-
-            // update image on hidden source (avoid flickering)
-            this.sources[this.activesource == 0 ? 1 : 0].updateTileAtLonLat(lonlat, this.map);
 
         });
         setTimeout(this.refreshLoop.bind(this), this.refreshInterval);

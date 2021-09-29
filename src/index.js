@@ -48,6 +48,6 @@ window.onload = () => {
     littlenavmap.map.getView().setCenter(fromLonLat([0, 0]));
 
     // start refreshing (disabled)
-    // littlenavmap.startRefreshLoop();
+    littlenavmap.startRefreshLoop();
 
 };
