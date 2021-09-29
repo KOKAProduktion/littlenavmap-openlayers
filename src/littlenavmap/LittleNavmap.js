@@ -20,9 +20,20 @@ import Map from 'ol/Map';
 import LNM from '../ol/source/LNM';
 import TileDebug from 'ol/source/TileDebug';
 import OSM from 'ol/source/OSM';
+import UserAircraftIcon from '../assets/svg/aircraft_small_user.svg';
 
 import View from 'ol/View';
-import TileLayer from 'ol/layer/Tile';
+import Point from 'ol/geom/Point';
+import {
+    Icon,
+    Style
+} from 'ol/style';
+import {
+    Tile as TileLayer,
+    Vector as VectorLayer
+} from 'ol/layer';
+import Feature from 'ol/Feature';
+import VectorSource from 'ol/source/Vector';
 
 import {
     fromLonLat
@@ -93,6 +104,8 @@ export default class LittleNavmap {
             })
         ];
 
+        this.setupAircraftFeature();
+
         // init ol map
         this.map = new Map({
             controls: controls,
@@ -113,6 +126,34 @@ export default class LittleNavmap {
         //     });
         // });
 
+    }
+
+    setupAircraftFeature() {
+        this.aircraftFeature = new Feature({
+            geometry: new Point([0, 0]),
+        });
+
+        this.aircraftFeatureStyle = new Style({
+            image: new Icon({
+                anchor: [0.5, 0.5],
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'fraction',
+                src: UserAircraftIcon,
+                scale: 0.5
+            }),
+        });
+
+        this.aircraftFeature.setStyle(this.aircraftFeatureStyle);
+
+        const vectorSource = new VectorSource({
+            features: [this.aircraftFeature],
+        });
+
+        const vectorLayer = new VectorLayer({
+            source: vectorSource,
+        });
+
+        this.layers.push(vectorLayer);
     }
 
     /**
@@ -138,7 +179,9 @@ export default class LittleNavmap {
         this.fetch(this.url + 'api/sim/info', (data) => {
             try {
                 const json = JSON.parse(data);
-                success([json.position.lon, json.position.lat]);
+                if (json.active) {
+                    success([json.position.lon, json.position.lat], json.heading);
+                }
             } catch (e) {
                 console.log(e);
             }
@@ -194,11 +237,14 @@ export default class LittleNavmap {
      */
     refreshLoop() {
 
-        this.getAircraftPosition((coords) => {
+        this.getAircraftPosition((coords, heading) => {
 
             // get map plane coords
             const lonlat = fromLonLat(coords);
 
+            this.aircraftFeature.setGeometry(new Point(lonlat))
+            this.aircraftFeatureStyle.getImage().setRotation(this.degreesToRadians(heading));
+            
             if (this.following) {
                 // center to position
                 this.map.getView().animate({
@@ -210,6 +256,11 @@ export default class LittleNavmap {
         });
         setTimeout(this.refreshLoop.bind(this), this.refreshInterval);
 
+    }
+
+    degreesToRadians(degrees) {
+        var pi = Math.PI;
+        return degrees * (pi / 180);
     }
 
     /**
