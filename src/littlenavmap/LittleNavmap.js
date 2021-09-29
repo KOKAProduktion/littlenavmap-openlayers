@@ -106,8 +106,8 @@ export default class LittleNavmap {
             layers: this.layers,
             target: this.target,
             view: new View({
-                maxZoom: 13, // Remember source settings
-                minZoom: 3
+                // maxZoom: 13, // Remember source settings
+                // minZoom: 3
             })
         });
 
