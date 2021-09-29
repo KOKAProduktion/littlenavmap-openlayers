@@ -135,7 +135,6 @@ export default class LittleNavmap {
      */
     getAircraftPosition(success) {
 
-        // note: This is a hack extracting the required info from html.
         this.fetch(this.url + 'api/sim/info', (data) => {
             try {
                 const json = JSON.parse(data);
