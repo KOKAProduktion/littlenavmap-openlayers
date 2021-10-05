@@ -118,8 +118,8 @@ export default class LittleNavmap {
             layers: this.layers,
             target: this.target,
             view: new View({
-                maxZoom: 13, // Remember source settings
-                // minZoom: 3
+                //maxZoom: 13, // Remember source settings
+                minZoom: 4
             })
         });
 
@@ -145,7 +145,8 @@ export default class LittleNavmap {
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'fraction',
                 src: UserAircraftIcon,
-                scale: 0.5
+                scale: 0.5,
+                opacity: 0
             }),
         });
 
@@ -186,7 +187,10 @@ export default class LittleNavmap {
             try {
                 const json = JSON.parse(data);
                 if (json.active) {
+                    this.setAircraftFeatureVisibility(true);
                     success([json.position.lon, json.position.lat], json.heading);
+                } else {
+                    this.setAircraftFeatureVisibility(false);
                 }
             } catch (e) {
                 console.log(e);
@@ -194,6 +198,18 @@ export default class LittleNavmap {
         }, (error) => {
             console.log(error);
         });
+    }
+
+    /**
+     * Show/hide the user aircraft feature
+     * @param {boolean} visible 
+     */
+    setAircraftFeatureVisibility(visible) {
+        if (visible && this.aircraftFeature.getStyle().getImage().getOpacity() == 0) {
+            this.aircraftFeature.getStyle().getImage().setOpacity(1);
+        } else if (!visible && this.aircraftFeature.getStyle().getImage().getOpacity() == 1) {
+            this.aircraftFeature.getStyle().getImage().setOpacity(0);
+        }
     }
 
     /**
