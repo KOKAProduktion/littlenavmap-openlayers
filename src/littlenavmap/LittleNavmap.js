@@ -41,7 +41,9 @@ import {
 
 import FollowControl from '../ol/control/FollowControl';
 import RefreshControl from '../ol/control/RefreshControl';
-import { Attribution } from 'ol/control';
+import {
+    Attribution
+} from 'ol/control';
 
 /**
  * Littlenavmap - openlayers controller
@@ -248,7 +250,7 @@ export default class LittleNavmap {
 
             this.aircraftFeature.setGeometry(new Point(lonlat))
             this.aircraftFeatureStyle.getImage().setRotation(this.degreesToRadians(heading));
-            
+
             if (this.following) {
                 // center to position
                 this.map.getView().animate({
