@@ -41,6 +41,7 @@ import {
 
 import FollowControl from '../ol/control/FollowControl';
 import RefreshControl from '../ol/control/RefreshControl';
+import { Attribution } from 'ol/control';
 
 /**
  * Littlenavmap - openlayers controller
@@ -101,6 +102,9 @@ export default class LittleNavmap {
                         source.refresh();
                     });
                 }
+            }),
+            new Attribution({
+                collapsible: false
             })
         ];
 
@@ -112,7 +116,7 @@ export default class LittleNavmap {
             layers: this.layers,
             target: this.target,
             view: new View({
-                // maxZoom: 13, // Remember source settings
+                maxZoom: 13, // Remember source settings
                 // minZoom: 3
             })
         });
