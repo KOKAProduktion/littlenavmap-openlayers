@@ -36,7 +36,7 @@ const ATTRIBUTION =
  * - translating ol tile coordinates to LNM rect URL's
  * - refreshing single tiles
  */
-export default class LNM extends XYZ {
+export default class LNMTileGrid extends XYZ {
 
     constructor(opt_options) {
         const options = opt_options || {};
@@ -117,18 +117,18 @@ export default class LNM extends XYZ {
      */
     updateTileAtPixel(pixel, map) {
 
-        // get lonlat
-        const coordinate = map.getCoordinateFromPixel(pixel);
+            // get lonlat
+            const coordinate = map.getCoordinateFromPixel(pixel);
 
-        // update
-        this.updateTileAtLonLat(coordinate, map);
+            // update
+            this.updateTileAtLonLat(coordinate, map);
 
-    }
-    /**
-     * Refresh tile at ol coordinate
-     * @param {array} coordinate 
-     * @param {Map} map 
-     */
+        }
+        /**
+         * Refresh tile at ol coordinate
+         * @param {array} coordinate 
+         * @param {Map} map 
+         */
     updateTileAtLonLat(coordinate, map) {
 
         // get tile

@@ -17,7 +17,7 @@
 
 import Map from 'ol/Map';
 
-import LNM from '../ol/source/LNM';
+import LNMTileGrid from '../ol/source/LNMTileGrid';
 import TileDebug from 'ol/source/TileDebug';
 import OSM from 'ol/source/OSM';
 import UserAircraftIcon from '../assets/svg/aircraft_small_user.svg';
@@ -35,10 +35,6 @@ import {
 import Feature from 'ol/Feature';
 import VectorSource from 'ol/source/Vector';
 
-import {
-    fromLonLat
-} from 'ol/proj';
-
 import FollowControl from '../ol/control/FollowControl';
 import RefreshControl from '../ol/control/RefreshControl';
 import {
@@ -46,16 +42,13 @@ import {
 } from 'ol/control';
 
 import {
-    tile as loadingStrategy
-} from 'ol/loadingstrategy';
-import {
-    toLonLat,
-    toUserCoordinate
+    fromLonLat
 } from 'ol/proj';
 
-import {
-    createXYZ
-} from 'ol/tilegrid';
+import debounce from '../util/debounce';
+import LNMFeatures from '../ol/source/LNMFeatures';
+import fetchText from '../util/fetchText';
+
 
 /**
  * Littlenavmap - openlayers controller
@@ -66,12 +59,13 @@ import {
  */
 export default class LittleNavmap {
     constructor(url, target) {
+        this.fetch = fetchText;
         this.url = url;
         this.target = target;
         this.refreshInterval = 1000;
 
         // ol sources
-        this.sources = [new LNM({
+        this.sources = [new LNMTileGrid({
             url: this.url
         })];
         this.activesource = 0;
@@ -124,63 +118,6 @@ export default class LittleNavmap {
 
         this.setupAircraftFeature();
 
-
-        const vectorSource = new VectorSource({
-            loader: (extent, resolution, projection, success, failure) => {
-                // extent = this.map.getView().calculateExtent(this.map.getSize());
-                const lefttop = toLonLat([extent[0], extent[1]], projection);
-                const rightbottom = toLonLat([extent[2], extent[3]], projection);
-
-                const url = this.url + 'api/map/features' + "?leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1];
-                this.fetch(url, (response) => {
-                        try {
-                            const json = JSON.parse(response);
-                            console.log(json);
-
-                            json.airports.result.forEach(airport => {
-
-                                let airportFeature = new Feature({
-                                    geometry: new Point(toLonLat([airport.position.lon * 100000, airport.position.lat * 100000], projection))
-                                });
-
-                                let airportFeatureStyle = new Style({
-                                    image: new Icon({
-                                        src: UserAircraftIcon,
-                                        anchor: [0.5, 0.5],
-                                        anchorXUnits: 'fraction',
-                                        anchorYUnits: 'fraction',
-                                        scale: 0.5
-                                    }),
-                                });
-
-                                airportFeature.setStyle(airportFeatureStyle);
-
-                                vectorSource.addFeature(airportFeature);
-                            });
-
-                        } catch (e) {
-                            console.log(e);
-                        }
-                    },
-                    (error) => {
-                        console.log("error");
-                        failure()
-                    },
-                );
-            },
-            strategy: loadingStrategy(
-                createXYZ({
-                    tileSize: 512,
-                })
-            ),
-        });
-
-        const vector = new VectorLayer({
-            source: vectorSource
-        });
-
-        this.layers.push(vector);
-
         // init ol map
         this.map = new Map({
             controls: controls,
@@ -191,6 +128,9 @@ export default class LittleNavmap {
                 minZoom: 4
             })
         });
+
+        // Note: must be called after this.map initialization
+        this.setupMapFeatures();
 
         // refresh tile at pixel (debugging)
         // this.map.on('click', function (event) {
@@ -203,6 +143,25 @@ export default class LittleNavmap {
 
     }
 
+    /**
+     * Add layer of separately requested map features (clickables)
+     * Requires this.map already to be initialized
+     */
+    setupMapFeatures() {
+        // Add extent dependent map features source
+        const vectorSource = new LNMFeatures(this.map, this.url);
+        this.featuresLayer = new VectorLayer({
+            source: vectorSource
+        });
+        this.map.addLayer(this.featuresLayer);
+        // Reload map features on map move end (debounced as "moveend" is triggered continously)
+        // See: https://github.com/openlayers/openlayers/issues/1823
+        this.map.on("moveend", debounce(vectorSource.refresh.bind(vectorSource), 1000));
+    }
+
+    /**
+     * Add layer of the users sim aircraft map feature
+     */
     setupAircraftFeature() {
         this.aircraftFeature = new Feature({
             geometry: new Point([0, 0]),
@@ -230,20 +189,6 @@ export default class LittleNavmap {
         });
 
         this.layers.push(vectorLayer);
-    }
-
-    /**
-     * Fetch implementation
-     * 
-     * @param {string} url 
-     * @param {Function} success 
-     * @param {Function} failure 
-     */
-    fetch(url, success, failure) {
-        fetch(url).then(response => response.text())
-            .then(data => success(data)).catch((error) => {
-                failure(error);
-            });
     }
 
     /**
