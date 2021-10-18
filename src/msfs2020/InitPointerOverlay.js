@@ -82,6 +82,24 @@ const InitPointerOverlay = (map) => {
         });
     });
 
+    // propagate click
+    // pointer_overlay.addEventListener('click', function(e) {
+    //     const mouseEvent = new MouseEvent("click", {
+    //         view: window,
+    //         bubbles: true,
+    //         cancelable: true,
+    //         screenX: e.screenX,
+    //         screenY: e.screenY,
+    //         clientX: e.clientX,
+    //         clientY: e.clientY,
+
+    //     });
+    //     // mouseEvent.screenX = e.screenX;
+    //     // mouseEvent.screenY = e.screenY;
+
+    //     document.getElementById(map.getTarget()).dispatchEvent(mouseEvent);
+    // });
+
 };
 
 export default InitPointerOverlay;

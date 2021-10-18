@@ -48,6 +48,7 @@ import {
 import debounce from '../util/debounce';
 import LNMFeatures from '../ol/source/LNMFeatures';
 import fetchText from '../util/fetchText';
+import Select from 'ol/interaction/Select';
 
 
 /**
@@ -132,6 +133,13 @@ export default class LittleNavmap {
         // Note: must be called after this.map initialization
         this.setupMapFeatures();
 
+        // Add feature selectability
+        const select = new Select();
+        select.on('select', (e) => {
+            console.log(e);
+        })
+        this.map.addInteraction(select);
+
         // refresh tile at pixel (debugging)
         // this.map.on('click', function (event) {
         //     this.map.forEachLayerAtPixel(event.pixel, function (layer) {
@@ -151,7 +159,7 @@ export default class LittleNavmap {
         // Add extent dependent map features source
         const vectorSource = new LNMFeatures(this.map, this.url);
         this.featuresLayer = new VectorLayer({
-            source: vectorSource
+            source: vectorSource,
         });
         this.map.addLayer(this.featuresLayer);
         // Reload map features on map move end (debounced as "moveend" is triggered continously)

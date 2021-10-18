@@ -41,7 +41,7 @@ var littlenavmap = new LittleNavmap(LNM_URL[environment], 'map');
 window.onload = () => {
 
     // init msfs iframe mouse event overlay
-    InitPointerOverlay(littlenavmap.map);
+    // InitPointerOverlay(littlenavmap.map);
 
     // Set initial zoom & center
     littlenavmap.map.getView().setZoom(2);
