@@ -44,6 +44,16 @@ export default class LNMFeatures extends VectorSource {
         this.url = url;
         this.map = map;
 
+        let airportFeatureStyle = new Style({
+            image: new Icon({
+                src: UserAircraftIcon,
+                anchor: [0.5, 0.5],
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'fraction',
+                scale: 0.5
+            }),
+        });
+
         this.setLoader((extent, resolution, projection, success, failure) => {
             extent = this.map.getView().calculateExtent(this.map.getSize());
             const margin = Math.abs(extent[2] - extent[0]) / 6.666666; // compensate for LNM returning rect bitmap with golden cut margin 
@@ -56,26 +66,19 @@ export default class LNMFeatures extends VectorSource {
                         const json = JSON.parse(response);
                         console.log(json);
 
+                        let airportFeatures = [];
+
                         json.airports.result.forEach(airport => {
 
                             let airportFeature = new Feature({
                                 geometry: new Point(fromLonLat([airport.position.lon, airport.position.lat], projection))
                             });
-
-                            let airportFeatureStyle = new Style({
-                                image: new Icon({
-                                    src: UserAircraftIcon,
-                                    anchor: [0.5, 0.5],
-                                    anchorXUnits: 'fraction',
-                                    anchorYUnits: 'fraction',
-                                    scale: 0.5
-                                }),
-                            });
-
                             airportFeature.setStyle(airportFeatureStyle);
 
-                            this.addFeature(airportFeature);
+                            airportFeatures.push(airportFeature);
                         });
+
+                        this.addFeatures(airportFeatures);
 
                     } catch (e) {
                         console.log(e);
