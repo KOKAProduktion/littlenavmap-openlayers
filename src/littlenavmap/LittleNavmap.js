@@ -45,6 +45,18 @@ import {
     Attribution
 } from 'ol/control';
 
+import {
+    tile as loadingStrategy
+} from 'ol/loadingstrategy';
+import {
+    toLonLat,
+    toUserCoordinate
+} from 'ol/proj';
+
+import {
+    createXYZ
+} from 'ol/tilegrid';
+
 /**
  * Littlenavmap - openlayers controller
  * 
@@ -111,6 +123,63 @@ export default class LittleNavmap {
         ];
 
         this.setupAircraftFeature();
+
+
+        const vectorSource = new VectorSource({
+            loader: (extent, resolution, projection, success, failure) => {
+                // extent = this.map.getView().calculateExtent(this.map.getSize());
+                const lefttop = toLonLat([extent[0], extent[1]], projection);
+                const rightbottom = toLonLat([extent[2], extent[3]], projection);
+
+                const url = this.url + 'api/map/features' + "?leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1];
+                this.fetch(url, (response) => {
+                        try {
+                            const json = JSON.parse(response);
+                            console.log(json);
+
+                            json.airports.result.forEach(airport => {
+
+                                let airportFeature = new Feature({
+                                    geometry: new Point(toLonLat([airport.position.lon * 100000, airport.position.lat * 100000], projection))
+                                });
+
+                                let airportFeatureStyle = new Style({
+                                    image: new Icon({
+                                        src: UserAircraftIcon,
+                                        anchor: [0.5, 0.5],
+                                        anchorXUnits: 'fraction',
+                                        anchorYUnits: 'fraction',
+                                        scale: 0.5
+                                    }),
+                                });
+
+                                airportFeature.setStyle(airportFeatureStyle);
+
+                                vectorSource.addFeature(airportFeature);
+                            });
+
+                        } catch (e) {
+                            console.log(e);
+                        }
+                    },
+                    (error) => {
+                        console.log("error");
+                        failure()
+                    },
+                );
+            },
+            strategy: loadingStrategy(
+                createXYZ({
+                    tileSize: 512,
+                })
+            ),
+        });
+
+        const vector = new VectorLayer({
+            source: vectorSource
+        });
+
+        this.layers.push(vector);
 
         // init ol map
         this.map = new Map({
