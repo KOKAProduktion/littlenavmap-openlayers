@@ -23,10 +23,16 @@ import {
     fromLonLat
 } from 'ol/proj';
 import fetchText from '../../util/fetchText';
-import { Feature } from 'ol';
+import {
+    Feature
+} from 'ol';
 import Point from 'ol/geom/Point';
-import { Style } from 'ol/style';
-import { Icon } from 'ol/style';
+import {
+    Style
+} from 'ol/style';
+import {
+    Icon
+} from 'ol/style';
 import UserAircraftIcon from '../../assets/svg/aircraft_small_user.svg';
 
 /**
@@ -60,7 +66,7 @@ export default class LNMFeatures extends VectorSource {
             const lefttop = toLonLat([extent[0] + margin, extent[1] + margin], projection);
             const rightbottom = toLonLat([extent[2] - margin, extent[3] - margin], projection);
 
-            const url = this.url + 'api/map/features' + "?leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1];
+            const url = this.url + 'api/map/features' + "?leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&detailfactor=13";
             this.fetch(url, (response) => {
                     try {
                         const json = JSON.parse(response);

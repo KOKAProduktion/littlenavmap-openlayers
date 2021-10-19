@@ -98,7 +98,7 @@ export default class LNMTileGrid extends XYZ {
         const rightbottom = toLonLat([extent[2] - margin, extent[3] - margin], this.getProjection());
 
         // get image for tile
-        imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&reload=" + Math.random();
+        imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&detailfactor=10" + "&reload=" + Math.random();
     }
 
     /**
@@ -117,18 +117,19 @@ export default class LNMTileGrid extends XYZ {
      */
     updateTileAtPixel(pixel, map) {
 
-            // get lonlat
-            const coordinate = map.getCoordinateFromPixel(pixel);
+        // get lonlat
+        const coordinate = map.getCoordinateFromPixel(pixel);
 
-            // update
-            this.updateTileAtLonLat(coordinate, map);
+        // update
+        this.updateTileAtLonLat(coordinate, map);
 
-        }
-        /**
-         * Refresh tile at ol coordinate
-         * @param {array} coordinate 
-         * @param {Map} map 
-         */
+    }
+
+    /**
+     * Refresh tile at ol coordinate
+     * @param {array} coordinate 
+     * @param {Map} map 
+     */
     updateTileAtLonLat(coordinate, map) {
 
         // get tile
