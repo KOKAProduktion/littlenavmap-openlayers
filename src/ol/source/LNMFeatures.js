@@ -62,7 +62,7 @@ export default class LNMFeatures extends VectorSource {
 
         this.setLoader((extent, resolution, projection, success, failure) => {
             extent = this.map.getView().calculateExtent(this.map.getSize());
-            const margin = Math.abs(extent[2] - extent[0]) / 6.666666; // compensate for LNM returning rect bitmap with golden cut margin 
+            const margin = Math.abs(extent[2] - extent[0]) / 4; // compensate for LNM returning rect bitmap with golden cut margin 
             const lefttop = toLonLat([extent[0] + margin, extent[1] + margin], projection);
             const rightbottom = toLonLat([extent[2] - margin, extent[3] - margin], projection);
 
@@ -76,15 +76,54 @@ export default class LNMFeatures extends VectorSource {
 
                         json.airports.result.forEach(airport => {
 
-                            let airportFeature = new Feature({
+                            let feature = new Feature({
                                 geometry: new Point(fromLonLat([airport.position.lon, airport.position.lat], projection))
                             });
-                            airportFeature.setStyle(airportFeatureStyle);
+                            feature.setStyle(airportFeatureStyle);
 
-                            airportFeatures.push(airportFeature);
+                            airportFeatures.push(feature);
+                        });
+
+                        let ndbFeatures = [];
+
+                        json.ndbs.result.forEach(ndb => {
+
+                            let feature = new Feature({
+                                geometry: new Point(fromLonLat([ndb.position.lon, ndb.position.lat], projection))
+                            });
+                            feature.setStyle(airportFeatureStyle);
+
+                            ndbFeatures.push(feature);
+                        });
+
+                        let vorFeatures = [];
+
+                        json.vors.result.forEach(vor => {
+
+                            let feature = new Feature({
+                                geometry: new Point(fromLonLat([vor.position.lon, vor.position.lat], projection))
+                            });
+                            feature.setStyle(airportFeatureStyle);
+
+                            vorFeatures.push(feature);
+                        });
+
+                        let markerFeatures = [];
+
+                        json.markers.result.forEach(marker => {
+
+                            let feature = new Feature({
+                                geometry: new Point(fromLonLat([marker.position.lon, marker.position.lat], projection))
+                            });
+                            feature.setStyle(airportFeatureStyle);
+
+                            markerFeatures.push(feature);
                         });
 
                         this.addFeatures(airportFeatures);
+                        this.addFeatures(ndbFeatures);
+                        this.addFeatures(vorFeatures);
+                        this.addFeatures(markerFeatures);
 
                     } catch (e) {
                         console.log(e);
