@@ -26,7 +26,10 @@ import View from 'ol/View';
 import Point from 'ol/geom/Point';
 import {
     Icon,
-    Style
+    Style,
+    Fill,
+    Stroke,
+    Text
 } from 'ol/style';
 import {
     Tile as TileLayer,
@@ -171,6 +174,8 @@ export default class LittleNavmap {
      * Add layer of the users sim aircraft map feature
      */
     setupAircraftFeature() {
+
+        // setup aircraft icon
         this.aircraftFeature = new Feature({
             geometry: new Point([0, 0]),
         });
@@ -181,15 +186,43 @@ export default class LittleNavmap {
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'fraction',
                 src: UserAircraftIcon,
-                scale: 0.5,
-                opacity: 0
+                scale: 0.5
             }),
         });
 
         this.aircraftFeature.setStyle(this.aircraftFeatureStyle);
 
+        // setup aircraft icon label
+        this.aircraftLabelFeature = new Feature({
+            geometry: new Point([0, 0]),
+        });
+
+        this.aircraftLabelFeatureStyle = new Style({
+            fill: new Fill({
+                color: 'rgba(255,255,255,0.4)'
+            }),
+            stroke: new Stroke({
+                color: '#3399CC',
+                width: 1.25
+            }),
+            text: new Text({
+                text: '1',
+                textAlign: 'left',
+                fill: new Fill({
+                    color: '#000000'
+                }),
+                stroke: new Stroke({
+                    color: '#FFFF99',
+                    width: 3.5
+                })
+            })
+        })
+
+        this.aircraftLabelFeature.setStyle(this.aircraftLabelFeatureStyle);
+
+        // assemble
         const vectorSource = new VectorSource({
-            features: [this.aircraftFeature],
+            features: [this.aircraftFeature, this.aircraftLabelFeature],
         });
 
         const vectorLayer = new VectorLayer({
@@ -200,7 +233,7 @@ export default class LittleNavmap {
     }
 
     /**
-     * Retrieve aircraft position from LNM
+     * Retrieve aircraft position from LNM and populate this.simInfo
      * @param {Function} success 
      */
     getAircraftPosition(success) {
@@ -209,9 +242,16 @@ export default class LittleNavmap {
             try {
                 const json = JSON.parse(data);
                 if (json.active) {
+                    // store sim info
+                    this.simInfo = json;
+                    // handle aircraft visibility
                     this.setAircraftFeatureVisibility(true);
+                    // callback
                     success([json.position.lon, json.position.lat], json.heading);
                 } else {
+                    // reset sim info
+                    this.simInfo = null;
+                    // handle aircraft visibility
                     this.setAircraftFeatureVisibility(false);
                 }
             } catch (e) {
@@ -223,14 +263,16 @@ export default class LittleNavmap {
     }
 
     /**
-     * Show/hide the user aircraft feature
+     * Show/hide the user aircraft feature and label
      * @param {boolean} visible 
      */
     setAircraftFeatureVisibility(visible) {
-        if (visible && this.aircraftFeature.getStyle().getImage().getOpacity() == 0) {
-            this.aircraftFeature.getStyle().getImage().setOpacity(1);
-        } else if (!visible && this.aircraftFeature.getStyle().getImage().getOpacity() == 1) {
-            this.aircraftFeature.getStyle().getImage().setOpacity(0);
+        if (visible && this.aircraftFeature.getStyle() == null) {
+            this.aircraftFeature.setStyle(this.aircraftFeatureStyle);
+            this.aircraftLabelFeature.setStyle(this.aircraftLabelFeatureStyle);
+        } else if (!visible && this.aircraftFeature.getStyle() != null) {
+            this.aircraftFeature.setStyle(null);
+            this.aircraftLabelFeature.setStyle(null);
         }
     }
 
@@ -286,8 +328,13 @@ export default class LittleNavmap {
             // get map plane coords
             const lonlat = fromLonLat(coords);
 
+            // update aircraft feature
             this.aircraftFeature.setGeometry(new Point(lonlat))
             this.aircraftFeatureStyle.getImage().setRotation(this.degreesToRadians(heading));
+
+            // update aircraft label feature
+            this.aircraftLabelFeature.setGeometry(new Point(lonlat));
+            this.aircraftLabelFeatureStyle.getText().setText("GS " + this.simInfo.ground_speed.toFixed(0) + "kts\nALT " + this.simInfo.indicated_altitude.toFixed(0) + "ft")
 
             if (this.following) {
                 // center to position
