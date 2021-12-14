@@ -45,13 +45,17 @@ import {
 } from 'ol/control';
 
 import {
+    toLonLat,
     fromLonLat
 } from 'ol/proj';
 
-import debounce from '../util/debounce';
-import LNMFeatures from '../ol/source/LNMFeatures';
 import fetchText from '../util/fetchText';
-import Select from 'ol/interaction/Select';
+import {
+    boundingExtent,
+} from 'ol/extent';
+import {
+    add
+} from 'ol/coordinate';
 
 
 /**
@@ -134,14 +138,18 @@ export default class LittleNavmap {
         });
 
         // Note: must be called after this.map initialization
-        // this.setupMapFeatures();
+        this.setupMapFeatures();
+
+        // Add nearest objects call
+        this.map.on('click', this.getFeaturesAtPixelListener.bind(this))
 
         // Add feature selectability
-        const select = new Select();
-        select.on('select', (e) => {
-            console.log(e);
-        })
-        this.map.addInteraction(select);
+        // const select = new Select();
+        // select.on('select', (e) => {
+        //     console.log(e);
+        // })
+        // this.map.addInteraction(select);
+
 
         // refresh tile at pixel (debugging)
         // this.map.on('click', function (event) {
@@ -155,19 +163,16 @@ export default class LittleNavmap {
     }
 
     /**
-     * Add layer of separately requested map features (clickables)
+     * Setup layer of requested map features
      * Requires this.map already to be initialized
      */
     setupMapFeatures() {
         // Add extent dependent map features source
-        const vectorSource = new LNMFeatures(this.map, this.url);
+        this.featuresSource = new VectorSource();
         this.featuresLayer = new VectorLayer({
-            source: vectorSource,
+            source: this.featuresSource,
         });
         this.map.addLayer(this.featuresLayer);
-        // Reload map features on map move end (debounced as "moveend" is triggered continously)
-        // See: https://github.com/openlayers/openlayers/issues/1823
-        this.map.on("moveend", debounce(vectorSource.refresh.bind(vectorSource), 1000));
     }
 
     /**
@@ -289,6 +294,145 @@ export default class LittleNavmap {
         var lon = this.ConvertDMSToDD(parseFloat(parts[4]), parseFloat(parts[5]), parseFloat(parts[6]), parts[7]);
 
         return [lon, lat];
+    }
+
+    /**
+     * Listener for clicks with screen coords (pixel)
+     * @param {Event} event 
+     * @returns 
+     */
+    getFeaturesAtPixelListener(event) {
+        return this.getFeaturesAtPixel(event.pixel);
+    }
+
+    /**
+     * Get features by screen coords
+     * @param {number[]} pixel 
+     * @returns 
+     */
+    getFeaturesAtPixel(pixel) {
+        return this.getFeaturesAtCoordinates(this.map.getCoordinateFromPixel(pixel))
+    }
+
+    /**
+     * Get features by lat/lon
+     * 
+     * @param {import('ol/coordinate').Coordinate} coords 
+     * @param {number} range the size of the rect to query
+     */
+    getFeaturesAtCoordinates(coords, range = 1) { // Note: range of 1 as result seems to pad the rect ATOW
+
+        this.featuresSource.clear();
+
+        let boundFeatures = [];
+        let extendCoords = [];
+
+        extendCoords.push(add(coords.map(x => x), [-1 * range, -1 * range]));
+        extendCoords.push(add(coords.map(x => x), [1 * range, -1 * range]));
+        extendCoords.push(add(coords.map(x => x), [1 * range, 1 * range]));
+        extendCoords.push(add(coords.map(x => x), [-1 * range, 1 * range]));
+
+        const extent = boundingExtent(extendCoords);
+
+        // display extent polygon. Result seems to pad the rect ATOW
+        // let extentPolygonFeature;
+        // extentPolygonFeature = new Feature({
+        //     geometry: new Polygon([
+        //         [
+        //             [extent[0], extent[1]],
+        //             [extent[2], extent[1]],
+        //             [extent[2], extent[3]],
+        //             [extent[0], extent[3]]
+        //         ]
+        //     ])
+        // }, );
+        // extentPolygonFeature.setStyle(new Style({
+        //     stroke: new Stroke({
+        //         color: 'blue',
+        //         width: 3,
+        //     }),
+        //     fill: new Fill({
+        //         color: 'rgba(0, 0, 255, 0.1)',
+        //     }),
+        // }));
+        // boundFeatures.push(extentPolygonFeature);
+        // this.featuresSource.addFeatures(boundFeatures);
+
+        const projection = this.map.getView().getProjection();
+        const lefttop = toLonLat([extent[0], extent[1]], projection);
+        const rightbottom = toLonLat([extent[0], extent[3]], projection);
+
+        const url = this.url + 'api/map/features' + "?leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&detailfactor=13";
+        fetchText(url, (response) => {
+                try {
+                    const json = JSON.parse(response);
+                    console.log(json);
+
+                    let airportFeatures = [];
+                    let i = 0;
+                    json.airports.result.forEach(airport => {
+
+                        let feature = new Feature({
+                            geometry: new Point(fromLonLat([airport.position.lon, airport.position.lat], projection))
+                        }, );
+
+                        airportFeatures.push(feature);
+                        ++i;
+                    });
+
+                    let ndbFeatures = [];
+
+                    json.ndbs.result.forEach(ndb => {
+
+                        let feature = new Feature({
+                            geometry: new Point(fromLonLat([ndb.position.lon, ndb.position.lat], projection))
+                        });
+
+                        ndbFeatures.push(feature);
+                        ++i;
+                    });
+
+                    let vorFeatures = [];
+
+                    json.vors.result.forEach(vor => {
+
+                        let feature = new Feature({
+                            geometry: new Point(fromLonLat([vor.position.lon, vor.position.lat], projection))
+                        });
+
+                        vorFeatures.push(feature);
+                        ++i;
+                    });
+
+                    let markerFeatures = [];
+
+                    json.markers.result.forEach(marker => {
+
+                        let feature = new Feature({
+                            geometry: new Point(fromLonLat([marker.position.lon, marker.position.lat], projection))
+                        });
+
+                        markerFeatures.push(feature);
+                        ++i;
+                    });
+
+
+                    this.featuresSource.addFeatures(airportFeatures);
+                    this.featuresSource.addFeatures(ndbFeatures);
+                    this.featuresSource.addFeatures(vorFeatures);
+                    this.featuresSource.addFeatures(markerFeatures);
+
+
+                } catch (e) {
+                    console.log(e);
+                }
+            },
+            (error) => {
+                console.log("error");
+            }
+        );
+
+
     }
 
     /**
