@@ -131,7 +131,7 @@ export default class LittleNavmap {
         });
 
         // Note: must be called after this.map initialization
-        this.setupMapFeatures();
+        // this.setupMapFeatures();
 
         // Add feature selectability
         const select = new Select();
