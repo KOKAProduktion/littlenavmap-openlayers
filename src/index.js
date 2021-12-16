@@ -36,7 +36,18 @@ var environment = process.env.NODE_ENV === 'production' ? 'production' : 'develo
 console.log("Starting " + environment + " mode:", LNM_URL[environment]);
 
 // init LNM controller
-window.littlenavmap = new LittleNavmap(LNM_URL[environment], 'map');
+const littlenavmap = new LittleNavmap(LNM_URL[environment], 'map');
+
+// expose littlenavmap JS
+window.littlenavmap = littlenavmap;
+
+// Event listener examples
+// window.addEventListener("sim/info",(event)=>{
+//     console.log(event.detail);
+// })
+// window.addEventListener("map/features",(event)=>{
+//     console.log(event.detail);
+// })
 
 window.onload = () => {
 
@@ -44,10 +55,10 @@ window.onload = () => {
     // InitPointerOverlay(littlenavmap.map);
 
     // Set initial zoom & center
-    window.littlenavmap.map.getView().setZoom(9);
-    window.littlenavmap.map.getView().setCenter(fromLonLat([0, 0]));
+    littlenavmap.map.getView().setZoom(9);
+    littlenavmap.map.getView().setCenter(fromLonLat([0, 0]));
 
     // start refreshing (disabled)
-    window.littlenavmap.startRefreshLoop();
+    littlenavmap.startRefreshLoop();
 
 };

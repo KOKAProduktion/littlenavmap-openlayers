@@ -133,7 +133,9 @@ class LNMMapClick extends Interaction {
         fetchText(url, (response) => {
                 try {
                     const json = JSON.parse(response);
-                    console.log(json);
+
+                    // Expose as event
+                    this.getMap().littlenavmap.dispatch("map/features", json);
 
                     let airportFeatures = [];
                     let i = 0;

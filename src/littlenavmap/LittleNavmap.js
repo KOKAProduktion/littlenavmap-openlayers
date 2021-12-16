@@ -133,6 +133,9 @@ export default class LittleNavmap {
             })
         });
 
+        // Make `littlenavmap` available in extensions
+        this.map.littlenavmap = this;
+
         // this.map.on("moveend", debounce((event)=>{
         //     console.log(this.map.getView().getZoom());
         // }, 1000));
@@ -190,6 +193,7 @@ export default class LittleNavmap {
                 if (json.active) {
                     // store sim info
                     this.simInfo = json;
+                    this.dispatch("sim/info", json);
                     // handle aircraft visibility
                     this.setAircraftFeatureVisibility(true);
                     // callback
@@ -316,5 +320,17 @@ export default class LittleNavmap {
             this.layers[0].setVisible(true);
             this.layers[1].setVisible(false);
         }
+    }
+
+    /**
+     * Expose event to window
+     * @param {string} type 
+     * @param {object} value 
+     */
+    dispatch(type, value) {
+        const event = new CustomEvent(type, {
+            detail: value
+        });
+        window.dispatchEvent(event);
     }
 }
