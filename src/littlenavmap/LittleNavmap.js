@@ -20,22 +20,13 @@ import Map from 'ol/Map';
 import LNMTileGrid from '../ol/source/LNMTileGrid';
 import TileDebug from 'ol/source/TileDebug';
 import OSM from 'ol/source/OSM';
-import UserAircraftIcon from '../assets/svg/aircraft_small_user.svg';
 
 import View from 'ol/View';
 import Point from 'ol/geom/Point';
 import {
-    Icon,
-    Style,
-    Fill,
-    Stroke,
-    Text
-} from 'ol/style';
-import {
     Tile as TileLayer,
     Vector as VectorLayer
 } from 'ol/layer';
-import Feature from 'ol/Feature';
 import VectorSource from 'ol/source/Vector';
 
 import FollowControl from '../ol/control/FollowControl';
@@ -53,6 +44,8 @@ import LNMMapClick from '../ol/interaction/LNMMapClick';
 import {
     defaults as defaultInteractions,
 } from 'ol/interaction';
+import LNMUserAircraft from '../ol/feature/LNMUserAircraft';
+import LNMUserAircraftLabel from '../ol/feature/LNMUserAircraftLabel';
 // import debounce from '../util/debounce';
 
 
@@ -168,49 +161,10 @@ export default class LittleNavmap {
     setupAircraftFeature() {
 
         // setup aircraft icon
-        this.aircraftFeature = new Feature({
-            geometry: new Point([0, 0]),
-        });
-
-        this.aircraftFeatureStyle = new Style({
-            image: new Icon({
-                anchor: [0.5, 0.5],
-                anchorXUnits: 'fraction',
-                anchorYUnits: 'fraction',
-                src: UserAircraftIcon,
-                scale: 0.5
-            }),
-        });
-
-        this.aircraftFeature.setStyle(this.aircraftFeatureStyle);
+        this.aircraftFeature = new LNMUserAircraft();
 
         // setup aircraft icon label
-        this.aircraftLabelFeature = new Feature({
-            geometry: new Point([0, 0]),
-        });
-
-        this.aircraftLabelFeatureStyle = new Style({
-            fill: new Fill({
-                color: 'rgba(255,255,255,0.4)'
-            }),
-            stroke: new Stroke({
-                color: '#3399CC',
-                width: 1.25
-            }),
-            text: new Text({
-                text: '1',
-                textAlign: 'left',
-                fill: new Fill({
-                    color: '#000000'
-                }),
-                stroke: new Stroke({
-                    color: '#FFFF99',
-                    width: 3.5
-                })
-            })
-        })
-
-        this.aircraftLabelFeature.setStyle(this.aircraftLabelFeatureStyle);
+        this.aircraftLabelFeature = new LNMUserAircraftLabel();
 
         // assemble
         const vectorSource = new VectorSource({
@@ -259,12 +213,12 @@ export default class LittleNavmap {
      * @param {boolean} visible 
      */
     setAircraftFeatureVisibility(visible) {
-        if (visible && this.aircraftFeature.getStyle() == null) {
-            this.aircraftFeature.setStyle(this.aircraftFeatureStyle);
-            this.aircraftLabelFeature.setStyle(this.aircraftLabelFeatureStyle);
-        } else if (!visible && this.aircraftFeature.getStyle() != null) {
-            this.aircraftFeature.setStyle(null);
-            this.aircraftLabelFeature.setStyle(null);
+        if (visible && !this.aircraftFeature.isVisible()) {
+            this.aircraftFeature.show();
+            this.aircraftLabelFeature.show();
+        } else if (!visible && this.aircraftFeature.isVisible()) {
+            this.aircraftFeature.hide();
+            this.aircraftLabelFeature.hide();
         }
     }
 
@@ -324,11 +278,11 @@ export default class LittleNavmap {
 
             // update aircraft feature
             this.aircraftFeature.setGeometry(new Point(lonlat))
-            this.aircraftFeatureStyle.getImage().setRotation(this.degreesToRadians(heading));
+            this.aircraftFeature.rotateImage(this.degreesToRadians(heading));
 
             // update aircraft label feature
             this.aircraftLabelFeature.setGeometry(new Point(lonlat));
-            this.aircraftLabelFeatureStyle.getText().setText("GS " + this.simInfo.ground_speed.toFixed(0) + "kts\nALT " + this.simInfo.indicated_altitude.toFixed(0) + "ft")
+            this.aircraftLabelFeature.updateText("GS " + this.simInfo.ground_speed.toFixed(0) + "kts\nALT " + this.simInfo.indicated_altitude.toFixed(0) + "ft")
 
             if (this.following) {
                 // center to position
