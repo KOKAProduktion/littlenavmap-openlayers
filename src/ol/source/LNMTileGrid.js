@@ -65,7 +65,7 @@ export default class LNMTileGrid extends XYZ {
             cacheSize: options.cacheSize,
             crossOrigin: crossOrigin,
             imageSmoothing: options.imageSmoothing,
-            //maxZoom: options.maxZoom !== undefined ? options.maxZoom : 14, // Remember view settings
+            maxZoom: options.maxZoom !== undefined ? options.maxZoom : 19, // Remember view settings
             minZoom: options.minZoom !== undefined ? options.minZoom : 4,
             opaque: options.opaque !== undefined ? options.opaque : true,
             reprojectionErrorThreshold: options.reprojectionErrorThreshold,

@@ -53,6 +53,7 @@ import LNMMapClick from '../ol/interaction/LNMMapClick';
 import {
     defaults as defaultInteractions,
 } from 'ol/interaction';
+// import debounce from '../util/debounce';
 
 
 /**
@@ -134,10 +135,14 @@ export default class LittleNavmap {
             layers: this.layers,
             target: this.target,
             view: new View({
-                //maxZoom: 13, // Remember source settings
+                maxZoom: 19, // Remember source settings
                 minZoom: 4
             })
         });
+
+        // this.map.on("moveend", debounce((event)=>{
+        //     console.log(this.map.getView().getZoom());
+        // }, 1000));
 
         // Add feature selectability
         // const select = new Select();
