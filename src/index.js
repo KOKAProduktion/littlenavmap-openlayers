@@ -44,7 +44,7 @@ window.onload = () => {
     // InitPointerOverlay(littlenavmap.map);
 
     // Set initial zoom & center
-    littlenavmap.map.getView().setZoom(2);
+    littlenavmap.map.getView().setZoom(9);
     littlenavmap.map.getView().setCenter(fromLonLat([0, 0]));
 
     // start refreshing (disabled)
