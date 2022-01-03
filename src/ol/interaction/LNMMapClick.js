@@ -185,11 +185,22 @@ class LNMMapClick extends Interaction {
                         ++i;
                     });
 
+                    let waypointFeatures = [];
+
+                    json.waypoints.result.forEach(waypoint => {
+
+                        let feature = new Feature({
+                            geometry: new Point(fromLonLat([waypoint.position.lon, waypoint.position.lat], projection))
+                        });
+
+                        waypointFeatures.push(feature);
+                    });
 
                     this.source.addFeatures(airportFeatures);
                     this.source.addFeatures(ndbFeatures);
                     this.source.addFeatures(vorFeatures);
                     this.source.addFeatures(markerFeatures);
+                    this.source.addFeatures(waypointFeatures);
 
 
                 } catch (e) {

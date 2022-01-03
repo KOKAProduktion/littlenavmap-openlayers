@@ -120,10 +120,23 @@ export default class LNMFeatures extends VectorSource {
                             markerFeatures.push(feature);
                         });
 
+                        let waypointFeatures = [];
+
+                        json.waypoints.result.forEach(waypoint => {
+
+                            let feature = new Feature({
+                                geometry: new Point(fromLonLat([waypoint.position.lon, waypoint.position.lat], projection))
+                            });
+                            feature.setStyle(airportFeatureStyle);
+
+                            waypointFeatures.push(feature);
+                        });
+
                         this.addFeatures(airportFeatures);
                         this.addFeatures(ndbFeatures);
                         this.addFeatures(vorFeatures);
                         this.addFeatures(markerFeatures);
+                        this.addFeatures(waypointFeatures);
 
                     } catch (e) {
                         console.log(e);
