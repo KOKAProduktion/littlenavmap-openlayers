@@ -48,6 +48,7 @@ import LNMUserAircraft from '../ol/feature/LNMUserAircraft';
 import LNMUserAircraftLabel from '../ol/feature/LNMUserAircraftLabel';
 // import debounce from '../util/debounce';
 
+import windIndicatorIcon from '../assets/svg/windpointer.svg';
 
 /**
  * Littlenavmap - openlayers controller
@@ -116,6 +117,7 @@ export default class LittleNavmap {
         ];
 
         this.setupAircraftFeature();
+        this.setupWindIndicator();
 
         // init ol map
         this.map = new Map({
@@ -182,6 +184,53 @@ export default class LittleNavmap {
     }
 
     /**
+     * Add static wind indicator HTML
+     */
+    setupWindIndicator() {
+
+        this.windIndicator = document.createElement("div");
+
+        var divLeft = document.createElement("div");
+        var divRight = document.createElement("div");
+
+        divLeft.style.float = "left";
+        divLeft.style.position = "relative";
+        divLeft.style.marginRight = "5px";
+        divRight.style.float = "left";
+        divRight.style.position = "relative";
+        divRight.style.backgroundColor = "#FFFF99";
+
+        this.windIndicator.style.position = "absolute";
+        this.windIndicator.style.top = "2%";
+        this.windIndicator.style.left = "48%";
+
+        this.windIndicatorPointer = document.createElement("img");
+        this.windIndicatorPointer.src = windIndicatorIcon;
+        this.windIndicatorPointer.style.width = "40px";
+
+        this.windIndicatorTextDirection = document.createElement("span");
+        this.windIndicatorTextDirection.innerHTML = "";
+
+        var br = document.createElement("br");
+
+        this.windIndicatorTextSpeed = document.createElement("span");
+        this.windIndicatorTextSpeed.innerHTML = "";
+
+        divLeft.appendChild(this.windIndicatorPointer);
+        divRight.appendChild(this.windIndicatorTextDirection);
+        divRight.appendChild(br);
+        divRight.appendChild(this.windIndicatorTextSpeed);
+
+        this.windIndicator.appendChild(divLeft);
+        this.windIndicator.appendChild(divRight);
+
+        this.windIndicator.style.visibility = "hidden";
+
+        document.body.appendChild(this.windIndicator);
+
+    }
+
+    /**
      * Retrieve aircraft position from LNM and populate this.simInfo
      * @param {Function} success 
      */
@@ -196,6 +245,8 @@ export default class LittleNavmap {
                     this.dispatch("sim/info", json);
                     // handle aircraft visibility
                     this.setAircraftFeatureVisibility(true);
+                    // handle windindicator visibility
+                    this.setWindIndicatorVisibility(true);
                     // callback
                     success([json.position.lon, json.position.lat], json.heading);
                 } else {
@@ -203,6 +254,8 @@ export default class LittleNavmap {
                     this.simInfo = null;
                     // handle aircraft visibility
                     this.setAircraftFeatureVisibility(false);
+                    // handle windindicator visibility
+                    this.setWindIndicatorVisibility(false);
                 }
             } catch (e) {
                 console.log(e);
@@ -223,6 +276,21 @@ export default class LittleNavmap {
         } else if (!visible && this.aircraftFeature.isVisible()) {
             this.aircraftFeature.hide();
             this.aircraftLabelFeature.hide();
+        }
+    }
+
+    /**
+     * Show/hide and reset the wind indicator
+     * @param {boolean} visible 
+     */
+    setWindIndicatorVisibility(visible) {
+        if (visible && this.windIndicator.style.visibility == "hidden") {
+            this.windIndicator.style.visibility = "visible";
+        } else if (!visible && this.windIndicator.style.visibility == "visible") {
+            this.windIndicator.style.visibility = "hidden";
+            // reset text fields
+            this.windIndicatorTextDirection.innerHTML = "";
+            this.windIndicatorTextSpeed.innerHTML = "";
         }
     }
 
@@ -287,6 +355,11 @@ export default class LittleNavmap {
             // update aircraft label feature
             this.aircraftLabelFeature.setGeometry(new Point(lonlat));
             this.aircraftLabelFeature.updateText("GS " + this.simInfo.ground_speed.toFixed(0) + "kts\nALT " + this.simInfo.indicated_altitude.toFixed(0) + "ft")
+
+            // update wind indicator
+            this.windIndicatorPointer.style.transform = "rotate(" + (this.simInfo.wind_direction - 180) + "deg)";
+            this.windIndicatorTextDirection.innerHTML = this.simInfo.wind_direction.toFixed(0) + " °M";
+            this.windIndicatorTextSpeed.innerHTML = this.simInfo.wind_speed.toFixed(0) + " kts";
 
             if (this.following) {
                 // center to position
