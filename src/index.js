@@ -27,7 +27,7 @@ import LittleNavmap from './littlenavmap/LittleNavmap';
 // LNM URL's
 var LNM_URL = {
     production: "/", // Served inside LNM built-in server
-    development: "http://littlenavmap.local/" // Proxy to avoid CORS issues
+    development: "http://localhost:8965/" // Local LNM Web API
 };
 
 // check environment mode
@@ -36,18 +36,29 @@ var environment = process.env.NODE_ENV === 'production' ? 'production' : 'develo
 console.log("Starting " + environment + " mode:", LNM_URL[environment]);
 
 // init LNM controller
-var littlenavmap = new LittleNavmap(LNM_URL[environment], 'map');
+const littlenavmap = new LittleNavmap(LNM_URL[environment], 'map');
+
+// expose littlenavmap JS
+window.littlenavmap = littlenavmap;
+
+// Event listener examples
+// window.addEventListener("sim/info",(event)=>{
+//     console.log(event.detail);
+// })
+// window.addEventListener("map/features",(event)=>{
+//     console.log(event.detail);
+// })
 
 window.onload = () => {
 
     // init msfs iframe mouse event overlay
-    InitPointerOverlay(littlenavmap.map);
+    // InitPointerOverlay(littlenavmap.map);
 
     // Set initial zoom & center
-    littlenavmap.map.getView().setZoom(2);
+    littlenavmap.map.getView().setZoom(9);
     littlenavmap.map.getView().setCenter(fromLonLat([0, 0]));
 
-    // start refreshing
+    // start refreshing (disabled)
     littlenavmap.startRefreshLoop();
 
 };
