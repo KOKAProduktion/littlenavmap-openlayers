@@ -406,4 +406,16 @@ export default class LittleNavmap {
         });
         window.dispatchEvent(event);
     }
+
+    /**
+     * Wrapper for ol.view.animate
+     * @param {{lat:number, lon:number}} coords 
+     */
+    moveTo(coords) {
+        const lonlat = fromLonLat(coords);
+        this.map.getView().animate({
+            center: lonlat,
+            duration: 200
+        });
+    }
 }
