@@ -63,7 +63,7 @@ export default class LittleNavmap {
                 source: this.sources[1],
                 className: "lnm-layer-1",
                 visible: false,
-            }),
+            })
             // new TileLayer({
             //   source: new OSM(),
             // }),
@@ -208,7 +208,7 @@ export default class LittleNavmap {
      */
     startRefreshLoop() {
         // start update loop
-        setTimeout(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
+        setInterval(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
     }
 
     /**
@@ -236,7 +236,6 @@ export default class LittleNavmap {
             this.sources[this.activesource == 0 ? 1 : 0].updateTileAtLonLat(lonlat, this.map);
 
         });
-        setTimeout(this.refreshLoop.bind(this), this.refreshInterval);
 
     }
 

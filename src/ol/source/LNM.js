@@ -23,11 +23,6 @@ import {
 // import proj4 from 'proj4';
 // import { register } from 'ol/proj/proj4';
 
-const ATTRIBUTION =
-    '&#169; ' +
-    '<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors. | <a href="https://albar965.github.io/littlenavmap.html" target="_blank">Little Navmap</a> ' +
-    '';
-
 /**
  * Custom openlayers tiled source implementation for 
  * the Little Navmap server
@@ -41,13 +36,6 @@ export default class LNM extends XYZ {
     constructor(opt_options) {
         const options = opt_options || {};
 
-        let attributions;
-        if (options.attributions !== undefined) {
-            attributions = options.attributions;
-        } else {
-            attributions = [ATTRIBUTION];
-        }
-
         const crossOrigin =
             options.crossOrigin !== undefined ? options.crossOrigin : undefined;
 
@@ -56,17 +44,15 @@ export default class LNM extends XYZ {
 
         const url =
             options.url !== undefined ?
-            options.url + 'mapimage?format=png&quality=100&width=' + res[0] + '&height=' + res[1] :
+            options.url + 'mapimage?format=jpg&quality=90&width=' + res[0] + '&height=' + res[1] :
             undefined;
 
         super({
-            attributions: attributions,
-            attributionsCollapsible: false,
             cacheSize: options.cacheSize,
             crossOrigin: crossOrigin,
             imageSmoothing: options.imageSmoothing,
             maxZoom: options.maxZoom !== undefined ? options.maxZoom : 14, // Remember view settings
-            minZoom: options.minZoom !== undefined ? options.minZoom : 3,
+            minZoom: options.minZoom !== undefined ? options.minZoom : 2,
             opaque: options.opaque !== undefined ? options.opaque : true,
             reprojectionErrorThreshold: options.reprojectionErrorThreshold,
             tileLoadFunction: options.tileLoadFunction ?

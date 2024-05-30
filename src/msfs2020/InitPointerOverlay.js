@@ -71,10 +71,10 @@ const InitPointerOverlay = (map) => {
 
     // propagate zoom
     pointer_overlay.addEventListener('wheel', function(e) {
-        if (e.deltaY > 0 && zoom < view.getMaxZoom()) {
-            zoom += 1;
-        } else if (e.deltaY < 0 && zoom > view.getMinZoom()) {
-            zoom -= 1;
+        if (e.deltaY > 0 && zoom > view.getMinZoom()) {
+            --zoom;
+        } else if (e.deltaY < 0 && zoom < view.getMaxZoom()) {
+            ++zoom;
         }
         view.animate({
             zoom: zoom,
