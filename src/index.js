@@ -42,10 +42,36 @@ window.onload = () => {
 
     // init msfs iframe mouse event overlay
     InitPointerOverlay(littlenavmap.map);
+    
+    
+    // default values
+    var lnmOlDefaults = {
+        zoom: 2,
+        lonLat: [0, 0]
+    };
+    
+    // try get current values and validate
+    var lnmOl = sessionStorage.getItem("lnm-ol");
+    try {
+        lnmOl = JSON.parse(lnmOl);
+        if(lnmOl === null || Array.isArray(lnmOl)) {
+            lnmOl = lnmOlDefaults;
+        } else {
+            if(typeof lnmOl.zoom !== "number") {
+                lnmOl.zoom = lnmOlDefaults.zoom;
+            }
+            if(!Array.isArray(lnmOl.lonLat) || lnmOl.lonLat.length !== 2 || typeof lnmOl.lonLat[0] !== "number" || typeof lnmOl.lonLat[1] !== "number") {
+                lnmOl.lonLat = lnmOlDefaults.lonLat;
+            }
+        }
+    } catch(e) {
+        lnmOl = lnmOlDefaults;
+    }
+
 
     // Set initial zoom & center
-    littlenavmap.map.getView().setZoom(2);
-    littlenavmap.map.getView().setCenter(fromLonLat([0, 0]));
+    littlenavmap.map.getView().setZoom(lnmOl.zoom);
+    littlenavmap.map.getView().setCenter(fromLonLat(lnmOl.lonLat));
 
     // start refreshing
     littlenavmap.startRefreshLoop();
