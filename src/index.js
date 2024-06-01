@@ -55,7 +55,7 @@ window.onload = () => {
     
     // default values
     var lnmOlDefaults = {
-        zoom: 4,
+        zoom: 4,              // see LittleNavmap.js, LNMTileGrid.js
         lonLat: [0, 0]
     };
     

@@ -56,7 +56,7 @@ export default class LNMTileGrid extends XYZ {
 
         const url =
             options.url !== undefined ?
-            options.url + 'api/map/image?format=png&quality=75&width=' + res[0] + '&height=' + res[1] :
+            options.url + 'api/map/image?format=jpg&quality=90&width=' + res[0] + '&height=' + res[1] :
             undefined;
 
         super({
@@ -65,8 +65,8 @@ export default class LNMTileGrid extends XYZ {
             cacheSize: options.cacheSize,
             crossOrigin: crossOrigin,
             imageSmoothing: options.imageSmoothing,
-            maxZoom: options.maxZoom !== undefined ? options.maxZoom : 19, // Remember view settings
-            minZoom: options.minZoom !== undefined ? options.minZoom : 4,
+            maxZoom: options.maxZoom !== undefined ? options.maxZoom : 19,  // Remember view settings
+            minZoom: options.minZoom !== undefined ? options.minZoom : 4,   // see index.js defaults
             opaque: options.opaque !== undefined ? options.opaque : true,
             reprojectionErrorThreshold: options.reprojectionErrorThreshold,
             tileLoadFunction: options.tileLoadFunction ?
