@@ -36,6 +36,8 @@ The application should become accessible as soon as the LNM server has started v
 
 e.g. http://localhost:8965/ol/index.html
 
+To allow aircraft progress tracking LNM position format must be set to GPS (deg,mins,secs,direction) in its settings and [Position display must be turned on](https://github.com/KOKAProduktion/littlenavmap-openlayers/issues/2#issue-1144685238)
+
 ## MSFS2020 Support
 
 This application can be embedded as an MSFS2020 in-game panel via [msfs2020-littlenavmap-openlayers](https://github.com/KOKAProduktion/msfs2020-littlenavmap-openlayers)
