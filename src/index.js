@@ -21,7 +21,7 @@ import {
     fromLonLat
 } from 'ol/proj';
 
-import InitPointerOverlay from './msfs2020/InitPointerOverlay';
+//import InitPointerOverlay from './msfs2020/InitPointerOverlay';
 import LittleNavmap from './littlenavmap/LittleNavmap';
 
 // LNM URL's
@@ -32,8 +32,6 @@ var LNM_URL = {
 
 // check environment mode
 var environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
-
-console.log("Starting " + environment + " mode:", LNM_URL[environment]);
 
 // init LNM controller
 const littlenavmap = new LittleNavmap(LNM_URL[environment], 'map');
@@ -57,7 +55,7 @@ window.onload = () => {
     
     // default values
     var lnmOlDefaults = {
-        zoom: 3,
+        zoom: 4,
         lonLat: [0, 0]
     };
     
@@ -78,6 +76,9 @@ window.onload = () => {
     } catch(e) {
         lnmOl = lnmOlDefaults;
     }
+
+
+    (environment !== "production" || lnmOl === lnmOlDefaults) && console?.log("Starting " + environment + " mode:", LNM_URL[environment]);
 
 
     // Set initial zoom & center

@@ -130,8 +130,8 @@ export default class LittleNavmap {
             layers: this.layers,
             target: this.target,
             view: new View({
-                maxZoom: 19, // Remember source settings
-                minZoom: 4
+                maxZoom: 19,  // Remember source settings
+                minZoom: 4    // see index.js defaults
             })
         });
 
@@ -335,7 +335,7 @@ export default class LittleNavmap {
      */
     startRefreshLoop() {
         // start update loop
-        setTimeout(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
+        setInterval(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
     }
 
     /**
@@ -370,7 +370,6 @@ export default class LittleNavmap {
             }
 
         });
-        setTimeout(this.refreshLoop.bind(this), this.refreshInterval);
 
     }
 
