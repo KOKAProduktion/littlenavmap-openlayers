@@ -17,9 +17,6 @@
 
 import 'ol/ol.css';
 import './index.css';
-import {
-    fromLonLat
-} from 'ol/proj';
 
 //import InitPointerOverlay from './msfs2020/InitPointerOverlay';
 import LittleNavmap from './littlenavmap/LittleNavmap';
@@ -60,7 +57,7 @@ window.onload = () => {
     };
     
     // try get current values and validate
-    var lnmOl = sessionStorage.getItem("lnm-ol");
+    var lnmOl = localStorage.getItem("lnm-ol");
     try {
         lnmOl = JSON.parse(lnmOl);
         if(lnmOl === null || Array.isArray(lnmOl)) {
@@ -76,6 +73,8 @@ window.onload = () => {
     } catch(e) {
         lnmOl = lnmOlDefaults;
     }
+    
+    window.lnmOl = lnmOl;
 
 
     (environment !== "production" || lnmOl === lnmOlDefaults) && console?.log("Starting " + environment + " mode:", LNM_URL[environment]);
@@ -83,7 +82,7 @@ window.onload = () => {
 
     // Set initial zoom & center
     littlenavmap.map.getView().setZoom(lnmOl.zoom);
-    littlenavmap.map.getView().setCenter(fromLonLat(lnmOl.lonLat));
+    littlenavmap.map.getView().setCenter(lnmOl.lonLat);
 
     // start refreshing (disabled)
     littlenavmap.startRefreshLoop();
