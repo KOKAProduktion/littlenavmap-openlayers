@@ -56,7 +56,7 @@ export default class LNMTileGrid extends XYZ {
 
         const url =
             options.url !== undefined ?
-            options.url + 'api/map/image?format=jpg&quality=90&width=' + res[0] + '&height=' + res[1] :
+            options.url + 'api/map/image?format=png&quality=0&width=' + res[0] + '&height=' + res[1] :
             undefined;
 
         super({
