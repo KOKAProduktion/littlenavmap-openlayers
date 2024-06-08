@@ -1,19 +1,19 @@
 {
   "name": "accessible",
   "dependencies": {
-    "ol": "6.5.0",
-    "proj4": "^2.7.2"
+    "ol": "*",
+    "proj4": "*"
   },
   "devDependencies": {
-    "css-loader": "^5.1.2",
-    "html-webpack-plugin": "^5.3.1",
-    "jshint": "^2.12.0",
-    "parcel": "^2.0.0-beta.1",
-    "style-loader": "^2.0.0",
-    "svg-url-loader": "^7.1.1",
-    "webpack": "^5.25.1",
-    "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^3.11.2"
+    "css-loader": "*",
+    "html-webpack-plugin": "*",
+    "jshint": "*",
+    "parcel": "*",
+    "style-loader": "*",
+    "svg-url-loader": "*",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
   },
   "scripts": {
     "start": "npx webpack serve --mode development",

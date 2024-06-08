@@ -17,19 +17,38 @@
 
 import Map from 'ol/Map';
 
-import LNM from '../ol/source/LNM';
+import LNMTileGrid from '../ol/source/LNMTileGrid';
 import TileDebug from 'ol/source/TileDebug';
 import OSM from 'ol/source/OSM';
 
 import View from 'ol/View';
-import TileLayer from 'ol/layer/Tile';
+import Point from 'ol/geom/Point';
+import {
+    Tile as TileLayer,
+    Vector as VectorLayer
+} from 'ol/layer';
+import VectorSource from 'ol/source/Vector';
+
+import FollowControl from '../ol/control/FollowControl';
+import RefreshControl from '../ol/control/RefreshControl';
+import {
+    Attribution
+} from 'ol/control';
 
 import {
     fromLonLat
 } from 'ol/proj';
 
-import FollowControl from '../ol/control/FollowControl';
-import RefreshControl from '../ol/control/RefreshControl';
+import fetchText from '../util/fetchText';
+import LNMMapClick from '../ol/interaction/LNMMapClick';
+import {
+    defaults as defaultInteractions,
+} from 'ol/interaction';
+import LNMUserAircraft from '../ol/feature/LNMUserAircraft';
+import LNMUserAircraftLabel from '../ol/feature/LNMUserAircraftLabel';
+// import debounce from '../util/debounce';
+
+import windIndicatorIcon from '../assets/svg/windpointer.svg';
 
 /**
  * Littlenavmap - openlayers controller
@@ -40,14 +59,13 @@ import RefreshControl from '../ol/control/RefreshControl';
  */
 export default class LittleNavmap {
     constructor(url, target) {
+        this.fetch = fetchText;
         this.url = url;
         this.target = target;
         this.refreshInterval = 1000;
 
         // ol sources
-        this.sources = [new LNM({
-            url: this.url
-        }), new LNM({
+        this.sources = [new LNMTileGrid({
             url: this.url
         })];
         this.activesource = 0;
@@ -58,11 +76,6 @@ export default class LittleNavmap {
                 source: this.sources[0],
                 className: "lnm-layer-0",
                 visible: true
-            }),
-            new TileLayer({
-                source: this.sources[1],
-                className: "lnm-layer-1",
-                visible: false,
             }),
             // new TileLayer({
             //   source: new OSM(),
@@ -97,19 +110,51 @@ export default class LittleNavmap {
                         source.refresh();
                     });
                 }
+            }),
+            new Attribution({
+                collapsible: false
             })
         ];
 
+        this.setupAircraftFeature();
+        this.setupWindIndicator();
+
         // init ol map
+        var view = new View({
+            maxZoom: 19,  // Remember source settings
+            minZoom: 4    // see index.js defaults
+        });
         this.map = new Map({
             controls: controls,
+            interactions: defaultInteractions().extend([
+                new LNMMapClick({
+                    url: this.url
+                })
+            ]),
             layers: this.layers,
             target: this.target,
-            view: new View({
-                maxZoom: 13, // Remember source settings
-                minZoom: 3
-            })
+            view: view
         });
+        
+        view.on("change:center", event => {
+          window.lnmOl.zoom = event.target.getZoom();
+          window.lnmOl.lonLat = event.target.getCenter();
+          localStorage.setItem("lnm-ol", JSON.stringify(window.lnmOl));
+        });
+
+        // Make `littlenavmap` available in extensions
+        this.map.littlenavmap = this;
+
+        // this.map.on("moveend", debounce((event)=>{
+        //     console.log(this.map.getView().getZoom());
+        // }, 1000));
+
+        // Add feature selectability
+        // const select = new Select();
+        // select.on('select', (e) => {
+        //     console.log(e);
+        // })
+        // this.map.addInteraction(select);
 
         // refresh tile at pixel (debugging)
         // this.map.on('click', function (event) {
@@ -123,50 +168,137 @@ export default class LittleNavmap {
     }
 
     /**
-     * Fetch implementation
-     * 
-     * @param {string} url 
-     * @param {Function} success 
-     * @param {Function} failure 
+     * Add layer of the users sim aircraft map feature
      */
-    fetch(url, success, failure) {
-        fetch(url).then(response => response.text())
-            .then(data => success(data)).catch((error) => {
-                failure(error);
-            });
+    setupAircraftFeature() {
+
+        // setup aircraft icon
+        this.aircraftFeature = new LNMUserAircraft();
+
+        // setup aircraft icon label
+        this.aircraftLabelFeature = new LNMUserAircraftLabel();
+
+        // assemble
+        const vectorSource = new VectorSource({
+            features: [this.aircraftFeature, this.aircraftLabelFeature],
+        });
+
+        const vectorLayer = new VectorLayer({
+            source: vectorSource,
+        });
+
+        this.layers.push(vectorLayer);
     }
 
     /**
-     * Retrieve aircraft position from LNM
+     * Add static wind indicator HTML
+     */
+    setupWindIndicator() {
+
+        this.windIndicator = document.createElement("div");
+
+        var divLeft = document.createElement("div");
+        var divRight = document.createElement("div");
+
+        divLeft.style.float = "left";
+        divLeft.style.position = "relative";
+        divLeft.style.marginRight = "5px";
+        divRight.style.float = "left";
+        divRight.style.position = "relative";
+        divRight.style.backgroundColor = "#FFFF99";
+
+        this.windIndicator.style.position = "absolute";
+        this.windIndicator.style.top = "2%";
+        this.windIndicator.style.left = "48%";
+
+        this.windIndicatorPointer = document.createElement("img");
+        this.windIndicatorPointer.src = windIndicatorIcon;
+        this.windIndicatorPointer.style.width = "40px";
+
+        this.windIndicatorTextDirection = document.createElement("span");
+        this.windIndicatorTextDirection.innerHTML = "";
+
+        var br = document.createElement("br");
+
+        this.windIndicatorTextSpeed = document.createElement("span");
+        this.windIndicatorTextSpeed.innerHTML = "";
+
+        divLeft.appendChild(this.windIndicatorPointer);
+        divRight.appendChild(this.windIndicatorTextDirection);
+        divRight.appendChild(br);
+        divRight.appendChild(this.windIndicatorTextSpeed);
+
+        this.windIndicator.appendChild(divLeft);
+        this.windIndicator.appendChild(divRight);
+
+        this.windIndicator.style.visibility = "hidden";
+
+        document.body.appendChild(this.windIndicator);
+
+    }
+
+    /**
+     * Retrieve aircraft position from LNM and populate this.simInfo
      * @param {Function} success 
      */
     getAircraftPosition(success) {
 
-        // note: This is a hack extracting the required info from html.
-        this.fetch(this.url + 'progress_doc.html', (data) => {
-
-            // Using native parser (for ingame panel/iframe compatibility)
-            const parser = new DOMParser();
-
-            // fix incomplete LNM markup (missing table tag) before parsing
-            data = data.replace("<h4>Position</h4>", "<table><h4>Position</h4>");
-
-            // parse to document
-            const html = parser.parseFromString(data, "text/html");
-
-            // extract and parse position string
-            var nodes = html.querySelectorAll('td');
-
-            if (nodes.length > 0) {
-                // DMS string is located inside the last td
-                var coordstr = nodes[nodes.length - 1].textContent.replace(/,/g, "."); // swap , for .
-                var coords = this.ParseDMS(coordstr);
-
-                success(coords);
+        this.fetch(this.url + 'api/sim/info', (data) => {
+            try {
+                const json = JSON.parse(data);
+                if (json.active) {
+                    // store sim info
+                    this.simInfo = json;
+                    this.dispatch("sim/info", json);
+                    // handle aircraft visibility
+                    this.setAircraftFeatureVisibility(true);
+                    // handle windindicator visibility
+                    this.setWindIndicatorVisibility(true);
+                    // callback
+                    success([json.position.lon, json.position.lat], json.heading);
+                } else {
+                    // reset sim info
+                    this.simInfo = null;
+                    // handle aircraft visibility
+                    this.setAircraftFeatureVisibility(false);
+                    // handle windindicator visibility
+                    this.setWindIndicatorVisibility(false);
+                }
+            } catch (e) {
+                console.log(e);
             }
         }, (error) => {
             console.log(error);
         });
+    }
+
+    /**
+     * Show/hide the user aircraft feature and label
+     * @param {boolean} visible 
+     */
+    setAircraftFeatureVisibility(visible) {
+        if (visible && !this.aircraftFeature.isVisible()) {
+            this.aircraftFeature.show();
+            this.aircraftLabelFeature.show();
+        } else if (!visible && this.aircraftFeature.isVisible()) {
+            this.aircraftFeature.hide();
+            this.aircraftLabelFeature.hide();
+        }
+    }
+
+    /**
+     * Show/hide and reset the wind indicator
+     * @param {boolean} visible 
+     */
+    setWindIndicatorVisibility(visible) {
+        if (visible && this.windIndicator.style.visibility == "hidden") {
+            this.windIndicator.style.visibility = "visible";
+        } else if (!visible && this.windIndicator.style.visibility == "visible") {
+            this.windIndicator.style.visibility = "hidden";
+            // reset text fields
+            this.windIndicatorTextDirection.innerHTML = "";
+            this.windIndicatorTextSpeed.innerHTML = "";
+        }
     }
 
     /**
@@ -183,6 +315,8 @@ export default class LittleNavmap {
 
         return [lon, lat];
     }
+
+
 
     /**
      * Convert DMS to decimal degrees
@@ -208,7 +342,7 @@ export default class LittleNavmap {
      */
     startRefreshLoop() {
         // start update loop
-        setTimeout(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
+        setInterval(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
     }
 
     /**
@@ -216,13 +350,23 @@ export default class LittleNavmap {
      */
     refreshLoop() {
 
-        this.getAircraftPosition((coords) => {
-
-            // swap active source
-            this.toggleActiveSource();
+        this.getAircraftPosition((coords, heading) => {
 
             // get map plane coords
             const lonlat = fromLonLat(coords);
+
+            // update aircraft feature
+            this.aircraftFeature.setGeometry(new Point(lonlat))
+            this.aircraftFeature.rotateImage(this.degreesToRadians(heading));
+
+            // update aircraft label feature
+            this.aircraftLabelFeature.setGeometry(new Point(lonlat));
+            this.aircraftLabelFeature.updateText("GS " + this.simInfo.ground_speed.toFixed(0) + "kts\nALT " + this.simInfo.indicated_altitude.toFixed(0) + "ft")
+
+            // update wind indicator
+            this.windIndicatorPointer.style.transform = "rotate(" + (this.simInfo.wind_direction - 180) + "deg)";
+            this.windIndicatorTextDirection.innerHTML = this.simInfo.wind_direction.toFixed(0) + " °M";
+            this.windIndicatorTextSpeed.innerHTML = this.simInfo.wind_speed.toFixed(0) + " kts";
 
             if (this.following) {
                 // center to position
@@ -232,12 +376,13 @@ export default class LittleNavmap {
                 });
             }
 
-            // update image on hidden source (avoid flickering)
-            this.sources[this.activesource == 0 ? 1 : 0].updateTileAtLonLat(lonlat, this.map);
-
         });
-        setTimeout(this.refreshLoop.bind(this), this.refreshInterval);
 
+    }
+
+    degreesToRadians(degrees) {
+        var pi = Math.PI;
+        return degrees * (pi / 180);
     }
 
     /**
@@ -254,5 +399,29 @@ export default class LittleNavmap {
             this.layers[0].setVisible(true);
             this.layers[1].setVisible(false);
         }
+    }
+
+    /**
+     * Expose event to window
+     * @param {string} type 
+     * @param {object} value 
+     */
+    dispatch(type, value) {
+        const event = new CustomEvent(type, {
+            detail: value
+        });
+        window.dispatchEvent(event);
+    }
+
+    /**
+     * Wrapper for ol.view.animate
+     * @param {{lat:number, lon:number}} coords 
+     */
+    moveTo(coords) {
+        const lonlat = fromLonLat(coords);
+        this.map.getView().animate({
+            center: lonlat,
+            duration: 200
+        });
     }
 }

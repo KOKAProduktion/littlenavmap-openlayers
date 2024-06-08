@@ -25,7 +25,7 @@ import {
 
 const ATTRIBUTION =
     '&#169; ' +
-    '<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors. | <a href="https://albar965.github.io/littlenavmap.html" target="_blank">Little Navmap</a> ' +
+    '<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> | &#169; <a href="https://opentopomap.org" target="_blank">OpenTopoMap</a> | <a href="https://albar965.github.io/littlenavmap.html" target="_blank">Little Navmap</a> ' +
     '';
 
 /**
@@ -36,7 +36,7 @@ const ATTRIBUTION =
  * - translating ol tile coordinates to LNM rect URL's
  * - refreshing single tiles
  */
-export default class LNM extends XYZ {
+export default class LNMTileGrid extends XYZ {
 
     constructor(opt_options) {
         const options = opt_options || {};
@@ -56,7 +56,7 @@ export default class LNM extends XYZ {
 
         const url =
             options.url !== undefined ?
-            options.url + 'mapimage?format=png&quality=100&width=' + res[0] + '&height=' + res[1] :
+            options.url + 'api/map/image?format=png&quality=0&width=' + res[0] + '&height=' + res[1] :
             undefined;
 
         super({
@@ -65,8 +65,8 @@ export default class LNM extends XYZ {
             cacheSize: options.cacheSize,
             crossOrigin: crossOrigin,
             imageSmoothing: options.imageSmoothing,
-            maxZoom: options.maxZoom !== undefined ? options.maxZoom : 14, // Remember view settings
-            minZoom: options.minZoom !== undefined ? options.minZoom : 3,
+            maxZoom: options.maxZoom !== undefined ? options.maxZoom : 19,  // Remember view settings
+            minZoom: options.minZoom !== undefined ? options.minZoom : 4,   // see index.js defaults
             opaque: options.opaque !== undefined ? options.opaque : true,
             reprojectionErrorThreshold: options.reprojectionErrorThreshold,
             tileLoadFunction: options.tileLoadFunction ?
@@ -98,7 +98,7 @@ export default class LNM extends XYZ {
         const rightbottom = toLonLat([extent[2] - margin, extent[3] - margin], this.getProjection());
 
         // get image for tile
-        imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&reload=" + Math.random();
+        imageTile.getImage().src = src + "&leftlon=" + lefttop[0] + "&toplat=" + lefttop[1] + "&rightlon=" + rightbottom[0] + "&bottomlat=" + rightbottom[1] + "&detailfactor=10" + "&reload=" + Math.random();
     }
 
     /**
@@ -124,6 +124,7 @@ export default class LNM extends XYZ {
         this.updateTileAtLonLat(coordinate, map);
 
     }
+
     /**
      * Refresh tile at ol coordinate
      * @param {array} coordinate 
