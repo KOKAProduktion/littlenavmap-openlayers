@@ -20,46 +20,41 @@ import {
 } from 'ol/control';
 import PlaneSVG from '../../assets/svg/aircraft_small_user.svg';
 
-const FollowControl = /*@__PURE__*/ (function (Control) {
+class FollowControl extends Control {
 
-    var handleFollowCallback;
-    var toggle = true;
-    var element = document.createElement('div');
+    #handleFollowCallback;
+    #toggle = true;
+    #element;
 
-    function FollowControl(opt_options) {
-        var options = opt_options || {};
+    constructor(opt_options) {
+        const options = opt_options || {};
 
-        handleFollowCallback = opt_options.handleFollow;
+        const  button = document.createElement('button');
+        button.innerHTML = '<img src="' + PlaneSVG + '">';
 
-        var button = document.createElement('button');
-        button.innerHTML = '<img src="' + PlaneSVG + '" />';
-
+        const element = document.createElement('div');
         element.className = 'follow-control on ol-unselectable ol-control';
         element.appendChild(button);
 
-        Control.call(this, {
+        super({
             element: element,
-            target: options.target,
+            target: options.target
         });
+
+        this.#element = element;
+        this.#handleFollowCallback = opt_options.handleFollow;
 
         button.addEventListener('click', this.handleFollow.bind(this), false);
     }
 
-    if (Control) FollowControl.__proto__ = Control;
-    FollowControl.prototype = Object.create(Control && Control.prototype);
-    FollowControl.prototype.constructor = FollowControl;
-
-    FollowControl.prototype.handleFollow = function handleFollow() {
-        toggle = !toggle;
-        if (toggle) {
-            element.className = 'follow-control on ol-unselectable ol-control';
-        } else {
-            element.className = 'follow-control off ol-unselectable ol-control';
-        }
-        handleFollowCallback();
-    };
-
-    return FollowControl;
-}(Control));
+    handleFollow() {
+        this.#toggle = !this.#toggle;
+        var add, remove;
+        [add, remove] = this.#toggle ? ["on", "off"] : ["off", "on"];
+        this.#element.classList.add(add);
+        this.#element.classList.remove(remove);
+        this.#handleFollowCallback();
+    }
+}
 
 export default FollowControl;

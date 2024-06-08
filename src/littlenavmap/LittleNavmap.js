@@ -120,6 +120,10 @@ export default class LittleNavmap {
         this.setupWindIndicator();
 
         // init ol map
+        var view = new View({
+            maxZoom: 19,  // Remember source settings
+            minZoom: 4    // see index.js defaults
+        });
         this.map = new Map({
             controls: controls,
             interactions: defaultInteractions().extend([
@@ -129,10 +133,13 @@ export default class LittleNavmap {
             ]),
             layers: this.layers,
             target: this.target,
-            view: new View({
-                maxZoom: 19, // Remember source settings
-                minZoom: 4
-            })
+            view: view
+        });
+        
+        view.on("change:center", event => {
+          window.lnmOl.zoom = event.target.getZoom();
+          window.lnmOl.lonLat = event.target.getCenter();
+          localStorage.setItem("lnm-ol", JSON.stringify(window.lnmOl));
         });
 
         // Make `littlenavmap` available in extensions
@@ -335,7 +342,7 @@ export default class LittleNavmap {
      */
     startRefreshLoop() {
         // start update loop
-        setTimeout(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
+        setInterval(this.refreshLoop.bind(this), this.refreshInterval); // delay first loop
     }
 
     /**
@@ -370,7 +377,6 @@ export default class LittleNavmap {
             }
 
         });
-        setTimeout(this.refreshLoop.bind(this), this.refreshInterval);
 
     }
 

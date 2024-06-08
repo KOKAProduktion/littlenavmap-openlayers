@@ -20,39 +20,35 @@ import {
 } from 'ol/control';
 import RefreshSVG from '../../assets/svg/refresh-solid.svg';
 
-const RefreshControl = /*@__PURE__*/ (function (Control) {
+class RefreshControl extends Control {
 
-    var handleRefreshCallback;
-    var element = document.createElement('div');
+    #handleRefreshCallback;
+    #element;
 
-    function RefreshControl(opt_options) {
+    constructor(opt_options) {
         var options = opt_options || {};
 
-        handleRefreshCallback = opt_options.handleRefresh;
-
         var button = document.createElement('button');
-        button.innerHTML = '<img src="' + RefreshSVG + '" />';
+        button.innerHTML = '<img src="' + RefreshSVG + '">';
 
+        const element = document.createElement('div');
         element.className = 'refresh-control on ol-unselectable ol-control';
         element.appendChild(button);
 
-        Control.call(this, {
+        super({
             element: element,
             target: options.target,
         });
 
+        this.#element = element;
+        this.#handleRefreshCallback = opt_options.handleRefresh;
+
         button.addEventListener('click', this.handleRefresh.bind(this), false);
     }
 
-    if (Control) RefreshControl.__proto__ = Control;
-    RefreshControl.prototype = Object.create(Control && Control.prototype);
-    RefreshControl.prototype.constructor = RefreshControl;
-
-    RefreshControl.prototype.handleRefresh = function handleRefresh() {
-        handleRefreshCallback();
-    };
-
-    return RefreshControl;
-}(Control));
+    handleRefresh() {
+        this.#handleRefreshCallback();
+    }
+}
 
 export default RefreshControl;
